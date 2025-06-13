@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 회원가입</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body class="center-content">
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <a href="login.html">로그인</a>
+            <a href="sing.html">회원가입</a>
+            <a href="main.html">내 농장</a>
+            <a href="1.html">작물 추가</a>
+            <a href="2.html">작물 추천</a>
+            <a href="3.html">재배 가이드</a>
+            <a href="4.html">작물 진단</a>
+            <a href="5.html">문제 해결</a>
+            <a href="6.html">챗봇 상담</a>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="register-panel">
+                <div class="card">
+                    <div class="card-header">AgroBuddy 회원가입</div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <label for="reg-username">사용자 이름</label>
+                            <input type="text" id="reg-username" placeholder="새로운 ID를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="reg-password">비밀번호</label>
+                            <input type="password" id="reg-password" placeholder="비밀번호를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="reg-confirm-password">비밀번호 확인</label>
+                            <input type="password" id="reg-confirm-password" placeholder="비밀번호를 다시 입력하세요">
+                        </div>
+                        <button class="btn" onclick="simulateRegister()">회원가입 완료</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+    <script>
+        // 이 함수는 script.js에 정의된 goToTab 함수를 사용하지 않으므로, 이 페이지에 직접 정의합니다.
+        function simulateRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            const confirmPassword = document.getElementById('reg-confirm-password').value.trim();
+
+            if (!username || !password || !confirmPassword) {
+                alert('모든 필드를 입력해주세요.');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+                return;
+            }
+            // [기술 명시: Spring Security를 이용한 사용자 정보 암호화 및 저장]
+            alert(`[기술 명시: Spring Security를 이용한 사용자 정보 암호화 및 저장] \n\n${username}님 회원가입 완료! 로그인 화면으로 이동합니다.`);
+            window.location.href = 'login.html'; // 로그인 페이지로 이동
+        }
+        // 페이지 로드 시, nav-bar의 '회원가입' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

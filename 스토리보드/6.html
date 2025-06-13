@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 챗봇 상담</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <a href="login.html">로그인</a>
+            <a href="sing.html">회원가입</a>
+            <a href="main.html">내 농장</a>
+            <a href="1.html">작물 추가</a>
+            <a href="2.html">작물 추천</a>
+            <a href="3.html">재배 가이드</a>
+            <a href="4.html">작물 진단</a>
+            <a href="5.html">문제 해결</a>
+            <a href="6.html">챗봇 상담</a>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="chatbot-panel">
+                <div class="card">
+                    <div class="card-header">💬 AI 챗봇 농업 상담 💬</div>
+                    <div class="card-content">
+                        <div id="chat-history">
+                            <div class="chat-message bot">
+                                <div class="message-info">
+                                    <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[10:00]</span>
+                                </div>
+                                <div class="message-bubble">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                            </div>
+                            <div class="chat-message user">
+                                <div class="message-info">
+                                    <span class="message-sender">나</span> <span class="message-time">[10:01]</span>
+                                </div>
+                                <div class="message-bubble">토마토 잎이 노랗게 변했어요. 왜 그런가요?</div>
+                            </div>
+                            <div class="chat-message bot">
+                                <div class="message-info">
+                                    <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[10:02]</span>
+                                </div>
+                                <div class="message-bubble">잎이 노랗게 변하는 증상은 질소 부족, 과습, 병충해 등 여러 원인이 있을 수 있습니다. 좀 더 자세한 상황을 알려주시거나, '작물 진단' 화면에서 사진을 업로드 해주시면 정확한 진단에 도움이 됩니다.</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" id="chat-input" placeholder="메시지 입력...">
+                            <button id="send-chat-message">전송</button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '챗봇 상담' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            // 로그인 여부 확인
+            if (!localStorage.getItem('loggedInUser')) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'login.html';
+            }
+
+            // 챗봇 관련 이벤트 리스너 바인딩 (이 페이지에서만 필요)
+            const sendButton = document.getElementById('send-chat-message');
+            const chatInput = document.getElementById('chat-input');
+            if (sendButton && chatInput) {
+                sendButton.addEventListener('click', sendMessage);
+                chatInput.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

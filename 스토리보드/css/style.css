@@ -1,0 +1,350 @@
+/* Base Styles */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #FFF; /* 흰색 배경 */
+    display: flex;
+    justify-content: center; /* 전체 앱 컨테이너를 중앙 정렬 */
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* For login/register pages to center app-container vertically */
+body.center-content {
+    align-items: center; /* 앱 컨테이너 자체를 세로 중앙 정렬 */
+}
+
+.app-container {
+    width: 100%;
+    max-width: 900px;
+    background-color: #F8F8F8; /* 앱 내부의 연한 회색 배경 */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px; /* 최소 높이 설정 */
+}
+
+/* Header */
+.header {
+    background-color: #222; /* 검은색 헤더 */
+    padding: 15px 25px;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    color: #FFF; /* 흰색 텍스트 */
+    border-bottom: 1px solid #444;
+}
+
+/* Global Navigation Bar */
+.nav-bar {
+    display: flex;
+    background-color: #333; /* 진한 회색 내비게이션 바 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    overflow-x: auto; /* 내용이 넘치면 스크롤 */
+    white-space: nowrap; /* 링크 줄바꿈 방지 */
+    justify-content: center; /* 내비게이션 링크들을 중앙 정렬 */
+    padding: 0 10px; /* 좌우 패딩 추가 */
+}
+.nav-bar a {
+    flex-shrink: 0; /* 링크 축소 방지 */
+    padding: 15px 15px; /* 패딩 좀 더 넓게 */
+    text-align: center;
+    color: #AAA; /* 비활성 링크 텍스트 */
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    border-bottom: 3px solid transparent;
+    text-decoration: none; /* 밑줄 제거 */
+    font-size: 14px;
+}
+.nav-bar a.active {
+    background-color: #444; /* 활성 링크 배경색 */
+    color: #4CAF50; /* 초록색 텍스트 */
+    border-bottom: 3px solid #4CAF50; /* 초록색 밑줄 */
+}
+.nav-bar a:hover:not(.active) {
+    background-color: #555; /* 호버 시 배경색 */
+    color: #CCC;
+}
+
+/* Main content area for individual pages */
+.main-content-panel {
+    flex-grow: 1;
+    display: flex; /* flex로 설정하여 내부 콘텐츠를 중앙 정렬 가능하게 함 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    padding: 30px; /* Panel padding */
+    background-color: #F8F8F8; /* Matches tab-panel background */
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+    overflow-y: auto; /* 내용이 길어지면 스크롤 가능 */
+}
+.main-content-panel section {
+    width: 100%; /* 패널 내 섹션이 100% 너비 차지 */
+    max-width: 500px; /* 카드 자체의 최대 너비 설정 (로그인/회원가입 등) */
+}
+
+
+/* Card-like elements */
+.card {
+    background-color: #333; /* 카드 배경 검은색 */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #EEE; /* 카드 내부 텍스트 흰색 */
+    margin-left: auto; /* 카드 자체를 중앙 정렬 (main-content-panel이 flex일 때) */
+    margin-right: auto; /* 카드 자체를 중앙 정렬 */
+    box-sizing: border-box;
+}
+.card-header {
+    font-size: 22px;
+    font-weight: bold;
+    color: #4CAF50; /* 초록색 타이틀 */
+    margin-bottom: 15px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #555; /* 어두운 경계선 */
+}
+.card-content {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Input Fields */
+.input-group {
+    margin-bottom: 15px;
+}
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #AAA; /* 라벨 색상 */
+    font-size: 14px;
+}
+.input-group input[type="text"],
+.input-group input[type="password"] {
+    width: calc(100% - 22px); /* Padding/border 고려 */
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #444; /* 입력 필드 배경 */
+    color: #EEE; /* 입력 텍스트 색상 */
+    font-size: 16px;
+    box-sizing: border-box; /* 패딩 포함 너비 계산 */
+}
+.input-group input[type="text"]:focus,
+.input-group input[type="password"]:focus {
+    outline: none;
+    border-color: #4CAF50; /* 포커스 시 초록색 테두리 */
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3); /* 초록색 그림자 */
+}
+.input-group input::placeholder {
+    color: #888;
+}
+
+/* Buttons */
+.btn {
+    background-color: #4CAF50; /* 초록색 버튼 */
+    color: #FFF;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.btn:hover {
+    background-color: #388E3C; /* 호버 시 더 진한 초록색 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.btn-secondary {
+    background-color: #555; /* 보조 버튼 */
+    color: #EEE;
+}
+.btn-secondary:hover {
+    background-color: #666;
+}
+.btn-icon { /* List item info button */
+    background: none;
+    border: none;
+    color: #4CAF50; /* 초록색 아이콘 */
+    cursor: pointer;
+    font-size: 24px; /* Material Icons size */
+    padding: 0;
+    transition: color 0.3s;
+}
+.btn-icon:hover {
+    color: #388E3C;
+}
+
+/* Lists */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #555;
+    color: #CCC;
+}
+li:last-child {
+    border-bottom: none;
+}
+
+/* Placeholder boxes */
+.placeholder-box {
+    background-color: #555; /* 플레이스홀더 박스 배경 */
+    border: 1px solid #777;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #BBB;
+    border-radius: 8px;
+}
+.image-placeholder { height: 200px; line-height: 200px; }
+.weather-placeholder { height: 150px; line-height: 150px; }
+
+/* Chat Specific Styles */
+#chat-history {
+    height: 280px;
+    overflow-y: auto;
+    background-color: #2b2b2b; /* 채팅 기록 배경 */
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    color: #EEE;
+}
+.chat-message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+.chat-message.user {
+    justify-content: flex-end;
+}
+.chat-message.bot {
+    justify-content: flex-start;
+}
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 70%;
+    word-wrap: break-word;
+    flex-shrink: 1;
+}
+.chat-message.user .message-bubble {
+    background-color: #4CAF50; /* 사용자 메시지: 초록색 */
+    color: white;
+}
+.chat-message.bot .message-bubble {
+    background-color: #555; /* 챗봇 메시지: 진한 회색 */
+    color: #EEE;
+}
+.message-sender {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #AAA;
+    white-space: nowrap;
+    margin-bottom: 3px;
+}
+.message-time {
+    font-size: 0.8em;
+    color: #888;
+    margin-left: 8px;
+    white-space: nowrap;
+}
+.chat-message .message-info { /* Flex container for sender & time */
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end; /* Align right for user, left for bot */
+    width: 100%; /* Take full width to allow text align to work */
+    margin-bottom: 3px;
+}
+.chat-message.bot .message-info {
+    justify-content: flex-start;
+}
+
+.chat-input-container {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+}
+.chat-input-container input {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #777;
+    background-color: #444;
+    color: #EEE;
+}
+.chat-input-container button {
+    background-color: #4CAF50;
+    color: #FFF;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.chat-input-container button:hover {
+    background-color: #388E3C;
+}
+
+h1, h2, h3, h4, h5, h6 { color: #EEE; } /* Ensure headings in cards are white */
+
+/* Progress Bar */
+.progress-bar-container {
+    width: 100%;
+    background-color: #555;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 25px;
+    background-color: #4CAF50; /* Green progress bar */
+    text-align: center;
+    line-height: 25px;
+    color: white;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+    min-width: 20px;
+}
+
+/* My Crops Specifics */
+.user-crop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed #555;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.user-crop-item:hover {
+    background-color: #4a4a4a;
+}
+.user-crop-item:last-child {
+    border-bottom: none;
+}
+.user-crop-item span {
+    font-weight: bold;
+    color: #EEE;
+}
+/* Style for progress bar within crop item */
+.user-crop-item .progress-bar-container {
+    width: 120px; /* Fixed width for progress bar in list item */
+    margin: 0 10px;
+    flex-shrink: 0;
+}
+.user-crop-item .progress-bar {
+    font-size: 0.8em;
+}

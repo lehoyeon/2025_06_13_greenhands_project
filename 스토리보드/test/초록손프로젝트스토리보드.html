@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 프로젝트 스토리보드 - (White Background, Dark UI, Security)</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #FFF; /* 흰색 배경 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #F8F8F8; /* 앱 내부의 연한 회색 배경 */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px; /* 최소 높이 설정 */
+        }
+
+        /* Header */
+        .header {
+            background-color: #222; /* 검은색 헤더 */
+            padding: 15px 25px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            color: #FFF; /* 흰색 텍스트 */
+            border-bottom: 1px solid #444;
+        }
+
+        /* Tab Navigation */
+        .tab-bar {
+            display: flex;
+            background-color: #333; /* 진한 회색 탭 바 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .tab-button {
+            flex: 1;
+            padding: 15px 10px;
+            text-align: center;
+            color: #AAA; /* 비활성 탭 텍스트 */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            border-bottom: 3px solid transparent; /* 비활성 탭 밑줄 없음 */
+            white-space: nowrap; /* 탭 이름 줄바꿈 방지 */
+            font-size: 14px;
+        }
+        .tab-button.active {
+            background-color: #444; /* 활성 탭 배경색 */
+            color: #4CAF50; /* 초록색 텍스트 */
+            border-bottom: 3px solid #4CAF50; /* 초록색 밑줄 */
+        }
+        .tab-button:hover:not(.active) {
+            background-color: #555; /* 호버 시 배경색 */
+            color: #CCC;
+        }
+
+        /* Tab Content Panel */
+        .tab-panel {
+            padding: 30px;
+            background-color: #F8F8F8; /* 패널 내부 배경색 (흰색과 통일) */
+            color: #333; /* 어두운 텍스트 */
+            flex-grow: 1;
+            display: none; /* 기본적으로 숨김 */
+            overflow-y: auto; /* 내용이 길어지면 스크롤 가능 */
+            height: calc(100% - 130px); /* 헤더, 탭바 높이 제외한 가용 공간 */
+            box-sizing: border-box; /* 패딩 포함 높이 계산 */
+        }
+        .tab-panel.active {
+            display: block; /* 활성 패널만 보임 */
+        }
+
+        /* Card-like elements */
+        .card {
+            background-color: #333; /* 카드 배경 검은색 */
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #EEE; /* 카드 내부 텍스트 흰색 */
+        }
+        .card-header {
+            font-size: 22px;
+            font-weight: bold;
+            color: #4CAF50; /* 초록색 타이틀 */
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #555; /* 어두운 경계선 */
+        }
+        .card-content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Input Fields */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #AAA; /* 라벨 색상 */
+            font-size: 14px;
+        }
+        .input-group input[type="text"],
+        .input-group input[type="password"] {
+            width: calc(100% - 22px); /* Padding/border 고려 */
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background-color: #444; /* 입력 필드 배경 */
+            color: #EEE; /* 입력 텍스트 색상 */
+            font-size: 16px;
+            box-sizing: border-box; /* 패딩 포함 너비 계산 */
+        }
+        .input-group input[type="text"]:focus,
+        .input-group input[type="password"]:focus {
+            outline: none;
+            border-color: #4CAF50; /* 포커스 시 초록색 테두리 */
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3); /* 초록색 그림자 */
+        }
+        .input-group input::placeholder {
+            color: #888;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: #4CAF50; /* 초록색 버튼 */
+            color: #FFF;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .btn:hover {
+            background-color: #388E3C; /* 호버 시 더 진한 초록색 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .btn-secondary {
+            background-color: #555; /* 보조 버튼 */
+            color: #EEE;
+        }
+        .btn-secondary:hover {
+            background-color: #666;
+        }
+        .btn-icon { /* List item info button */
+            background: none;
+            border: none;
+            color: #4CAF50; /* 초록색 아이콘 */
+            cursor: pointer;
+            font-size: 24px; /* Material Icons size */
+            padding: 0;
+            transition: color 0.3s;
+        }
+        .btn-icon:hover {
+            color: #388E3C;
+        }
+
+        /* Lists */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #555;
+            color: #CCC;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+
+        /* Placeholder boxes */
+        .placeholder-box {
+            background-color: #555; /* 플레이스홀더 박스 배경 */
+            border: 1px solid #777;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #BBB;
+            border-radius: 8px;
+        }
+        .image-placeholder { height: 200px; line-height: 200px; }
+        .weather-placeholder { height: 150px; line-height: 150px; }
+
+        /* Chat Specific Styles */
+        #chat-history {
+            height: 280px;
+            overflow-y: auto;
+            background-color: #2b2b2b; /* 채팅 기록 배경 */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            color: #EEE;
+        }
+        .chat-message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+        .chat-message.bot {
+            justify-content: flex-start;
+        }
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+            word-wrap: break-word;
+            flex-shrink: 1;
+        }
+        .chat-message.user .message-bubble {
+            background-color: #4CAF50; /* 사용자 메시지: 초록색 */
+            color: white;
+        }
+        .chat-message.bot .message-bubble {
+            background-color: #555; /* 챗봇 메시지: 진한 회색 */
+            color: #EEE;
+        }
+        .message-sender {
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #AAA;
+            white-space: nowrap;
+            margin-bottom: 3px;
+        }
+        .message-time {
+            font-size: 0.8em;
+            color: #888;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .chat-message .message-info { /* Flex container for sender & time */
+            display: flex;
+            align-items: baseline;
+            justify-content: flex-end; /* Align right for user, left for bot */
+            width: 100%; /* Take full width to allow text align to work */
+            margin-bottom: 3px;
+        }
+        .chat-message.bot .message-info {
+            justify-content: flex-start;
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .chat-input-container input {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #777;
+            background-color: #444;
+            color: #EEE;
+        }
+        .chat-input-container button {
+            background-color: #4CAF50;
+            color: #FFF;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .chat-input-container button:hover {
+            background-color: #388E3C;
+        }
+        
+        h1, h2, h3, h4, h5, h6 { color: #EEE; } /* Ensure headings in cards are white */
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #555;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 25px;
+            background-color: #4CAF50; /* Green progress bar */
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+            min-width: 20px;
+        }
+
+        /* My Crops Specifics */
+        .user-crop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #555;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .user-crop-item:hover {
+            background-color: #4a4a4a;
+        }
+        .user-crop-item:last-child {
+            border-bottom: none;
+        }
+        .user-crop-item span {
+            font-weight: bold;
+            color: #EEE;
+        }
+        /* Style for progress bar within crop item */
+        .user-crop-item .progress-bar-container {
+            width: 120px; /* Fixed width for progress bar in list item */
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        .user-crop-item .progress-bar {
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="tab-bar" id="tab-bar">
+            <div class="tab-button active" data-target="login-panel">로그인</div>
+            <div class="tab-button" data-target="register-panel">회원가입</div>
+            <div class="tab-button" data-target="mycrops-panel">내 농장</div>
+            <div class="tab-button" data-target="addcrop-panel">작물 추가</div>
+            <div class="tab-button" data-target="recommendation-panel">작물 추천</div>
+            <div class="tab-button" data-target="guide-panel">재배 가이드</div>
+            <div class="tab-button" data-target="diagnosis-panel">작물 진단</div>
+            <div class="tab-button" data-target="solution-panel">문제 해결</div>
+            <div class="tab-button" data-target="chatbot-panel">챗봇 상담</div>
+        </div>
+
+        <div class="tab-content">
+            <section class="tab-panel active" id="login-panel">
+                <div class="card">
+                    <div class="card-header">AgroBuddy 로그인</div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <label for="login-username">사용자 이름</label>
+                            <input type="text" id="login-username" placeholder="ID를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="login-password">비밀번호</label>
+                            <input type="password" id="login-password" placeholder="비밀번호를 입력하세요">
+                        </div>
+                        <button class="btn" onclick="simulateLogin()">로그인</button>
+                        <button class="btn btn-secondary" onclick="goToTab('register-panel')">회원가입</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="register-panel">
+                <div class="card">
+                    <div class="card-header">AgroBuddy 회원가입</div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <label for="reg-username">사용자 이름</label>
+                            <input type="text" id="reg-username" placeholder="새로운 ID를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="reg-password">비밀번호</label>
+                            <input type="password" id="reg-password" placeholder="비밀번호를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="reg-confirm-password">비밀번호 확인</label>
+                            <input type="password" id="reg-confirm-password" placeholder="비밀번호를 다시 입력하세요">
+                        </div>
+                        <button class="btn" onclick="simulateRegister()">회원가입 완료</button>
+                        <button class="btn btn-secondary" onclick="goToTab('login-panel')">로그인 화면으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="mycrops-panel">
+                <div class="card">
+                    <div class="card-header">🏡 내 농장물 진행도 📈</div>
+                    <div class="card-content">
+                        <p style="text-align: center; font-size: 1.1em; color: #EEE; margin-bottom: 20px;">
+                            <span id="current-username-display">사용자명</span>님의 농장</p>
+                        <ul class="crop-list">
+                            <li class="user-crop-item" data-crop-key="tomato" onclick="selectCrop('tomato')">
+                                <span>토마토 (열매 성장 중)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 70%;">70%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            <li class="user-crop-item" data-crop-key="lettuce" onclick="selectCrop('lettuce')">
+                                <span>상추 (잎 수확 가능)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 45%;">45%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            <li class="user-crop-item" data-crop-key="pepper" onclick="selectCrop('pepper')">
+                                <span>고추 (모종 단계)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 10%;">10%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            </ul>
+                        <div class="user-crop-details" id="selected-crop-details" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #555;">
+                            <p><strong>작물명:</strong> <span id="detail-name">선택 없음</span></p>
+                            <p><strong>시작일:</strong> <span id="detail-start-date"></span></p>
+                            <p><strong>화분 크기:</strong> <span id="detail-pot-size"></span></p>
+                            <p><strong>물의 양:</strong> <span id="detail-water-amount"></span></p>
+                            <p><strong>물 주는 주기:</strong> <span id="detail-watering-frequency"></span></p>
+                            <p><strong>흙 종류:</strong> <span id="detail-soil-type"></span></p>
+                            <p><strong>진행도:</strong> <span id="detail-progress"></span></p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="detail-progress-bar"></div>
+                            </div>
+                            <button class="btn" style="margin-top: 15px;" onclick="goToTab('guide-panel'); alert('실제 앱에서는 선택된 작물 정보로 재배 가이드가 채워집니다.');">
+                                선택 작물 상세 가이드 보기
+                            </button>
+                            <button class="btn btn-secondary" style="margin-top: 5px;">
+                                선택 작물 삭제
+                            </button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="goToTab('addcrop-panel')">
+                            + 내 작물 추가
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="addcrop-panel">
+                <div class="card">
+                    <div class="card-header">🌿 새로운 농작물 등록 🌿</div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <label for="add-crop-name">작물 이름</label>
+                            <input type="text" id="add-crop-name" placeholder="예: 토마토">
+                        </div>
+                        <div class="input-group">
+                            <label for="add-crop-start-date">시작일 (YYYY-MM-DD)</label>
+                            <input type="text" id="add-crop-start-date" value="2025-06-13" placeholder="예: 2025-06-13">
+                        </div>
+                        <div class="input-group">
+                            <label for="add-crop-pot-size">화분 크기 (예: 20cm 화분)</label>
+                            <input type="text" id="add-crop-pot-size" placeholder="예: 20cm 화분">
+                        </div>
+                        <div class="input-group">
+                            <label for="add-crop-water-amount">물의 양 (예: 100ml, 컵 반)</label>
+                            <input type="text" id="add-crop-water-amount" placeholder="예: 100ml">
+                        </div>
+                        <div class="input-group">
+                            <label for="add-crop-watering-frequency">물 주는 주기 (예: 2일에 한 번)</label>
+                            <input type="text" id="add-crop-watering-frequency" placeholder="예: 2일에 한 번">
+                        </div>
+                        <div class="input-group">
+                            <label for="add-crop-soil-type">흙 종류 (예: 배양토, 상토)</label>
+                            <input type="text" id="add-crop-soil-type" placeholder="예: 배양토">
+                        </div>
+                        <button class="btn" onclick="alert('작물 등록 기능 시뮬레이션'); goToTab('mycrops-panel')">
+                            작물 등록
+                        </button>
+                        <button class="btn btn-secondary" onclick="goToTab('mycrops-panel')">
+                            내 농장 목록으로
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="recommendation-panel">
+                <div class="card">
+                    <div class="card-header">🌱 현재 날씨 기반 농작물 추천 🌱</div>
+                    <div class="card-content">
+                        <div class="placeholder-box weather-placeholder">
+                            현재 날씨 정보 표시 공간<br>
+                            온도: 25°C, 습도: 70%, 강수량: 0mm, 일조량: 8시간 (가정치)
+                        </div>
+                        <h4>추천 농작물 목록:</h4>
+                        <ul>
+                            <li>1. 토마토 (생육 적합도: 높음)</li>
+                            <li>2. 상추 (생육 적합도: 보통)</li>
+                            <li>3. 고추 (생육 적합도: 낮음)</li>
+                        </ul>
+                        <button class="btn" onclick="goToTab('guide-panel'); alert('실제 앱에서는 추천 작물 정보로 재배 가이드가 채워집니다.');">선택한 작물 재배 가이드 보기</button>
+                        <button class="btn btn-secondary" onclick="goToTab('mycrops-panel')">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="guide-panel">
+                <div class="card">
+                    <div class="card-header">📋 맞춤형 농작물 재배 가이드라인 📋</div>
+                    <div class="card-content">
+                        <h3>선택된 농작물: 정보 없음 (예시: 토마토)</h3>
+                        <div class="placeholder-box">
+                            <p><strong>이 화면은 '내 농장'에서 작물을 선택하거나,</strong></p>
+                            <p><strong>'작물 추천'에서 추천 작물을 선택했을 때,</strong></p>
+                            <p><strong>해당 작물에 대한 상세 재배 가이드가 동적으로 표시될 공간입니다.</strong></p>
+                            <br>
+                            <h4>예시) 토마토 상세 재배 가이드:</h4>
+                            <ul>
+                                <li><strong>파종:</strong> 씨앗을 2-3cm 깊이로 심고 흙으로 덮어줍니다.</li>
+                                <li><strong>물 주기:</strong> 흙이 마르면 충분히 물을 줍니다. 과습은 피하세요. (화분 크기, 흙 종류에 따라 조절)</li>
+                                <li><strong>비료 주기:</strong> 성장 초기에는 질소 비료를, 꽃이 필 때는 인산 비료를 줍니다.</li>
+                                <li><strong>햇빛:</strong> 하루 6시간 이상 햇빛이 잘 드는 곳에 둡니다.</li>
+                                <li><strong>병충해 관리:</strong> 주기적으로 잎을 관찰하여 병충해 징후가 보이면 즉시 조치합니다.</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-secondary" onclick="goToTab('mycrops-panel')">내 농장으로 돌아가기</button>
+                        <button class="btn" onclick="goToTab('diagnosis-panel')">작물 상태 진단하기</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="diagnosis-panel">
+                <div class="card">
+                    <div class="card-header">📸 사용자 사진 기반 작물 상태 진단 📸</div>
+                    <div class="card-content">
+                        <p>작물 사진을 업로드 해주세요.</p>
+                        <button class="btn" onclick="alert('사진 업로드 기능 시뮬레이션');">
+                            사진 업로드
+                        </button>
+                        <div class="placeholder-box image-placeholder" style="margin-top: 20px;">
+                            업로드된 이미지 미리보기 공간
+                        </div>
+                        <button class="btn" onclick="goToTab('solution-panel')">진단 시작</button>
+                        <button class="btn btn-secondary" onclick="goToTab('mycrops-panel')">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="solution-panel">
+                <div class="card">
+                    <div class="card-header">🔍 진단 결과 및 해결 방안 제시 💡</div>
+                    <div class="card-content">
+                        <h3>진단 결과: 토마토 잎의 검은 반점 (예시)</h3>
+                        <div class="card" style="background-color: #444; margin-top: 15px;">
+                            <div class="card-header" style="background-color: #444; border-bottom: 1px solid #777; color: #EEE;">
+                                <h4>진단 결과:</h4>
+                            </div>
+                            <div class="card-content">
+                                <p>- 잎에 검은 반점이 보입니다.</p>
+                                <p>- <strong>곰팡이병 (역병) 초기 증상</strong>일 수 있습니다.</p>
+                                <h4>성장 저해 요인:</h4>
+                                <ul>
+                                    <li>높은 습도와 불충분한 통풍</li>
+                                    <li>병원균 감염</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card" style="background-color: #444; margin-top: 15px;">
+                            <div class="card-header" style="background-color: #444; border-bottom: 1px solid #777; color: #EEE;">
+                                <h4>해결 방안:</h4>
+                            </div>
+                            <div class="card-content">
+                                <ol>
+                                    <li><strong>감염된 잎 제거:</strong> 즉시 감염된 잎과 가지를 잘라내어 병의 확산을 막아주세요.</li>
+                                    <li><strong>통풍 개선:</strong> 작물 간 간격을 조절하고, 주변 잡초를 제거하여 공기 순환을 원활하게 해주세요.</li>
+                                    <li><strong>친환경 살균제 살포:</strong> 초기 증상이므로 베이킹소다 희석액을 살포해보세요.</li>
+                                    <li><strong>물 주기 조절:</strong> 잎에 물이 닿지 않도록 뿌리에 직접 물을 주고, 흙이 충분히 마른 후 다시 물을 주세요.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="goToTab('mycrops-panel')">내 농장으로 돌아가기</button>
+                        <button class="btn" onclick="goToTab('chatbot-panel')">챗봇에게 추가 문의</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-panel" id="chatbot-panel">
+                <div class="card">
+                    <div class="card-header">💬 AI 챗봇 농업 상담 💬</div>
+                    <div class="card-content">
+                        <div id="chat-history">
+                            <div class="chat-message bot">
+                                <div class="message-info">
+                                    <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[10:00]</span>
+                                </div>
+                                <div class="message-bubble">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                            </div>
+                            <div class="chat-message user">
+                                <div class="message-info">
+                                    <span class="message-sender">나</span> <span class="message-time">[10:01]</span>
+                                </div>
+                                <div class="message-bubble">토마토 잎이 노랗게 변했어요. 왜 그런가요?</div>
+                            </div>
+                            <div class="chat-message bot">
+                                <div class="message-info">
+                                    <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[10:02]</span>
+                                </div>
+                                <div class="message-bubble">잎이 노랗게 변하는 증상은 질소 부족, 과습, 병충해 등 여러 원인이 있을 수 있습니다. 좀 더 자세한 상황을 알려주시거나, '작물 진단' 화면에서 사진을 업로드 해주시면 정확한 진단에 도움이 됩니다.</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" id="chat-input" placeholder="메시지 입력...">
+                            <button id="send-chat-message">전송</button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="goToTab('mycrops-panel')">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetPanelId = button.dataset.target;
+
+                // Deactivate all tabs and panels
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanels.forEach(panel => panel.classList.remove('active'));
+
+                // Activate clicked tab and its corresponding panel
+                button.classList.add('active');
+                document.getElementById(targetPanelId).classList.add('active');
+
+                // Special handling for '내 농장' tab to update content
+                if (targetPanelId === 'mycrops-panel') {
+                    // Simulate loading user's data (username)
+                    const loggedInUser = localStorage.getItem('loggedInUser') || '테스트사용자';
+                    document.getElementById('current-username-display').textContent = loggedInUser;
+                    selectCrop('tomato'); // Select a default crop to display details
+                }
+            });
+        });
+
+        function goToTab(panelId) {
+            const button = document.querySelector(`.tab-button[data-target="${panelId}"]`);
+            if (button) {
+                button.click(); // Simulate click on the tab button
+            }
+        }
+
+        // Simulate login and go to My Crops tab
+        function simulateLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            if (username) {
+                // 이 부분이 Spring Security를 통한 인증 처리를 명시하는 부분입니다.
+                alert(`[기술 명시: Spring Security를 이용한 사용자 인증 처리] \n\n${username}님 로그인 성공! 내 농장 화면으로 이동합니다.`);
+                localStorage.setItem('loggedInUser', username); // Simulate storing user
+                goToTab('mycrops-panel');
+            } else {
+                alert('사용자 이름을 입력해주세요.');
+            }
+        }
+
+        // Simulate registration and go to Login tab
+        function simulateRegister() {
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            const confirmPassword = document.getElementById('reg-confirm-password').value.trim();
+
+            if (!username || !password || !confirmPassword) {
+                alert('모든 필드를 입력해주세요.');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+                return;
+            }
+            // 이 부분이 Spring Security를 통한 회원 정보 암호화 및 저장 처리를 명시하는 부분입니다.
+            alert(`[기술 명시: Spring Security를 이용한 사용자 정보 암호화 및 저장] \n\n${username}님 회원가입 완료! 로그인 화면으로 이동합니다.`);
+            goToTab('login-panel');
+        }
+
+
+        // Dummy data for "내 농장" details (In a real app, this would come from a database)
+        const userCropsData = {
+            'tomato': {
+                name: '토마토',
+                startDate: '2025-05-01',
+                potSize: '20cm 이상',
+                waterAmount: '200ml (큰 컵 1잔)',
+                wateringFrequency: '2~3일에 한 번 (흙 마름 확인 후)',
+                soilType: '배양토 + 퇴비',
+                progress: 70
+            },
+            'lettuce': {
+                name: '상추',
+                startDate: '2025-05-15',
+                potSize: '15cm 이상',
+                waterAmount: '100ml (작은 컵 1잔)',
+                wateringFrequency: '매일 (오전)',
+                soilType: '상토',
+                progress: 45
+            },
+            'pepper': {
+                name: '고추',
+                startDate: '2025-06-05',
+                potSize: '25cm 이상',
+                waterAmount: '300ml (큰 컵 1.5잔)',
+                wateringFrequency: '3일에 한 번',
+                soilType: '배양토 + 마사토',
+                progress: 10
+            }
+        };
+
+        function selectCrop(cropKey) {
+            const crop = userCropsData[cropKey];
+            if (crop) {
+                document.getElementById('detail-name').textContent = crop.name;
+                document.getElementById('detail-start-date').textContent = crop.startDate;
+                document.getElementById('detail-pot-size').textContent = crop.potSize;
+                document.getElementById('detail-water-amount').textContent = crop.waterAmount;
+                document.getElementById('detail-watering-frequency').textContent = crop.wateringFrequency;
+                document.getElementById('detail-soil-type').textContent = crop.soilType;
+                document.getElementById('detail-progress').textContent = `${crop.progress}%`;
+                const progressBar = document.getElementById('detail-progress-bar');
+                progressBar.style.width = `${crop.progress}%`;
+                progressBar.textContent = `${crop.progress}%`;
+            }
+        }
+
+        // Simulate chat bot response
+        document.getElementById('send-chat-message').addEventListener('click', sendMessage);
+        document.getElementById('chat-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+                e.preventDefault();
+            }
+        });
+
+        function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessageToChat('나', message, 'user');
+                chatInput.value = '';
+
+                setTimeout(() => {
+                    const botResponse = getBotResponse(message);
+                    addMessageToChat('AgroBuddy 챗봇', botResponse, 'bot');
+                }, 800);
+            }
+        }
+
+        function addMessageToChat(sender, message, type) {
+            const chatHistory = document.getElementById('chat-history');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${type}`;
+            const now = new Date();
+            const time = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}]`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-info">
+                    <span class="message-sender">${sender}</span> <span class="message-time">${time}</span>
+                </div>
+                <div class="message-bubble">${message}</div>
+            `;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function getBotResponse(userMessage) {
+            const msg = userMessage.toLowerCase();
+            if (msg.includes("안녕") || msg.includes("hi")) {
+                return "안녕하세요! 무엇을 도와드릴까요?";
+            } else if (msg.includes("날씨")) {
+                return "'작물 추천' 화면을 확인해 주세요. 더 자세한 정보가 필요하신가요?";
+            } else if (msg.includes("병충해") || msg.includes("진단")) {
+                return "'작물 진단' 화면에 사진을 올려주시면 상태를 진단해 드릴 수 있습니다.";
+            } else if (msg.includes("재배") || msg.includes("가이드")) {
+                return "재배 가이드는 '재배 가이드' 화면에서 선택한 작물에 맞춰 제공됩니다.";
+            } else if (msg.includes("고마워") || msg.includes("감사")) {
+                return "천만에요! 더 궁금한 점이 있으시면 언제든지 물어보세요.";
+            } else if (msg.includes("화분") || msg.includes("물") || msg.includes("흙") || msg.includes("주기")) {
+                 return "'내 농장' 화면에서 등록된 작물을 선택하시면 관련 정보를 확인하실 수 있습니다.";
+            }
+            else {
+                return "질문을 정확히 이해하지 못했습니다. 좀 더 구체적으로 말씀해 주시거나, 다른 화면의 기능을 이용해 보세요.";
+            }
+        }
+
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Activate the first tab (Login) by default
+            goToTab('login-panel'); 
+            // Select default crop details when the "My Crops" tab is selected for the first time
+            // This is a simple way to ensure it loads when the tab is first viewed
+            const myCropsTabLink = document.querySelector('.tab-button[data-target="mycrops-panel"]');
+            myCropsTabLink.addEventListener('click', () => {
+                selectCrop('tomato');
+            });
+        });
+
+    </script>
+</body>
+</html>
