@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 수경재배 관리</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="login.html">로그인</a>
+                <a href="sing.html">회원가입</a>
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">수경재배</a> </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="hydroponics-farm-panel">
+                <div class="card">
+                    <div class="card-header">💧 수경재배 시스템 관리 (스마트팜) 🌿</div>
+                    <div class="card-content">
+                        <h3>나의 수경재배 환경</h3>
+                        <div class="placeholder-box" style="height: 150px; text-align: left; padding: 15px;">
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">location_on</i> 재배 시스템:</strong> 베란다 수경재배기 (NFT 방식)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">sensor_window</i> 연동 센서:</strong> pH, EC(양액 농도), 수온</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">settings_remote</i> 연동 장치:</strong> 양액 공급 펌프, pH 조절 펌프, LED 식물등</p>
+                            <p style="color: #4CAF50; font-size: 0.95em; margin-top: 10px;">(IoT 센서 및 제어 장치 연동 예정 - 전용 모듈 필요)</p>
+                        </div>
+
+                        <h3>현재 수질 및 장치 상태</h3>
+                        <div class="placeholder-box" style="height: 200px; text-align: left; padding: 15px;">
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">science</i> pH:</strong> 6.2 (적정)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">water_drop</i> EC (양액 농도):</strong> 1.8 dS/m (높음!)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">thermostat</i> 수온:</strong> 23.0°C (적정)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">lightbulb</i> 식물등:</strong> ON (자동 제어 중)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">local_drink</i> 양액 펌프:</strong> 대기 중</p>
+                            <p style="font-size: 0.9em; color: #BBB; margin-top: 10px;">(실시간 센서 데이터와 제어 현황 표시)</p>
+                        </div>
+                        <br>
+                        <button class="btn" onclick="alert('양액 공급 펌프 강제 실행 기능 구현 예정');">양액 공급 시작</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                        <button class="btn" style="margin-top: 10px;" onclick="alert('자동 양액/pH 조절 스케줄 설정 기능 구현 예정');">자동 제어 스케줄 설정</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '수경재배' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            // 로그인 여부 확인
+            if (!localStorage.getItem('loggedInUser')) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

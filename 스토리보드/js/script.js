@@ -92,22 +92,27 @@ function getBotResponse(userMessage) {
     } else if (msg.includes("고마워") || msg.includes("감사")) {
         return "천만에요! 더 궁금한 점이 있으시면 언제든지 물어보세요.";
     } else if (msg.includes("화분") || msg.includes("물") || msg.includes("흙") || msg.includes("주기")) {
-         return "'내 농장' 화면에서 등록된 작물을 선택하시면 관련 정보를 확인하실 수 있습니다.";
+        return "'내 농장' 화면에서 등록된 작물을 선택하시면 관련 정보를 확인하실 수 있습니다.";
     }
     else {
         return "질문을 정확히 이해하지 못했습니다. 좀 더 구체적으로 말씀해 주시거나, 다른 화면의 기능을 이용해 보세요.";
     }
 }
 
+// --- 햄버거 메뉴 토글 로직 ---
+function toggleNavMenu() {
+    const navLinksContainer = document.getElementById('navLinksContainer');
+    navLinksContainer.classList.toggle('active');
+}
 
 // --- 공통 DOMContentLoaded 이벤트 리스너 ---
 document.addEventListener('DOMContentLoaded', () => {
     // 현재 페이지의 URL을 기반으로 내비게이션 바의 'active' 클래스 설정
-    const currentPath = window.location.pathname.split('/').pop(); // 예: "login.html"
-    const navLinks = document.querySelectorAll('.nav-bar a');
+    const currentPath = window.location.pathname.split('/').pop(); 
+    const navLinks = document.querySelectorAll('.nav-links-container a'); // nav-links-container 내부의 링크 선택
 
     navLinks.forEach(link => {
-        const linkPath = link.getAttribute('href').split('/').pop(); // "login.html"
+        const linkPath = link.getAttribute('href').split('/').pop(); 
         if (linkPath === currentPath) {
             link.classList.add('active');
         } else {
@@ -115,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // my_farm.html (이제 main.html) 페이지가 로드되었을 때만 실행
+    // main.html (내 농장) 페이지가 로드되었을 때만 실행
     if (currentPath === 'main.html') {
         const loggedInUser = localStorage.getItem('loggedInUser');
         if (loggedInUser) {
@@ -129,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 챗봇 관련 요소가 현재 페이지에 있을 경우에만 이벤트 리스너 바인딩
-    // (6.html에서만 해당)
     const sendButton = document.getElementById('send-chat-message');
     const chatInput = document.getElementById('chat-input');
     if (sendButton && chatInput) {
@@ -141,4 +145,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- 햄버거 메뉴 외부 클릭 시 닫기 ---
+    document.addEventListener('click', function(event) {
+        const navBar = document.querySelector('.nav-bar'); // .nav-bar 전체
+        const hamburgerIcon = document.querySelector('.hamburger-icon'); // 햄버거 아이콘
+        const navLinksContainer = document.getElementById('navLinksContainer'); // 메뉴 컨테이너
+
+        // 클릭된 요소가 햄버거 아이콘도 아니고, 내비게이션 바(메뉴 컨테이너 포함) 내부도 아닐 때
+        // 그리고 메뉴가 현재 열려있는 상태일 때
+        if (navLinksContainer.classList.contains('active') && 
+            !navBar.contains(event.target) && 
+            event.target !== hamburgerIcon) {
+            navLinksContainer.classList.remove('active');
+        }
+    });
+
+    // --- 창 크기 변경 시 햄버거 메뉴 닫기 (모바일에서 데스크톱으로 전환 시) ---
+    window.addEventListener('resize', function() {
+        const navLinksContainer = document.getElementById('navLinksContainer');
+        if (window.innerWidth > 768) { // 768px 이상 (데스크톱 뷰)
+            navLinksContainer.classList.remove('active'); // 메뉴 닫기
+        }
+    });
 });

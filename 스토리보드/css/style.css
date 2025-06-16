@@ -5,9 +5,10 @@ body {
     padding: 20px;
     background-color: #FFF; /* 흰색 배경 */
     display: flex;
-    justify-content: center; /* 전체 앱 컨테이너를 중앙 정렬 */
-    align-items: flex-start;
+    justify-content: center;
+    align-items: flex-start; /* 전체 앱 컨테이너를 상단에 정렬 */
     min-height: 100vh;
+    box-sizing: border-box; /* 패딩을 포함한 크기 계산 */
 }
 
 /* For login/register pages to center app-container vertically */
@@ -21,9 +22,10 @@ body.center-content {
     background-color: #F8F8F8; /* 앱 내부의 연한 회색 배경 */
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+    overflow: hidden; /* 내부 오버플로우 숨김 */
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 40px); /* 뷰포트 높이에서 body padding을 뺀 높이로 고정 */
     min-height: 600px; /* 최소 높이 설정 */
 }
 
@@ -36,21 +38,63 @@ body.center-content {
     text-align: center;
     color: #FFF; /* 흰색 텍스트 */
     border-bottom: 1px solid #444;
+    flex-shrink: 0; /* 헤더는 줄어들지 않음 */
 }
 
 /* Global Navigation Bar */
 .nav-bar {
-    display: flex;
     background-color: #333; /* 진한 회색 내비게이션 바 */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    overflow-x: auto; /* 내용이 넘치면 스크롤 */
-    white-space: nowrap; /* 링크 줄바꿈 방지 */
-    justify-content: center; /* 내비게이션 링크들을 중앙 정렬 */
+    flex-shrink: 0; /* 내비게이션 바도 줄어들지 않음 */
+    position: relative; /* 햄버거 메뉴 아이콘 위치 지정을 위해 */
     padding: 0 10px; /* 좌우 패딩 추가 */
+    display: flex; /* flex 컨테이너로 설정 */
+    align-items: center; /* 세로 중앙 정렬 */
+    height: 54px; /* 내비게이션 바의 고정 높이 */
+    box-sizing: border-box;
 }
-.nav-bar a {
+
+/* 햄버거 메뉴 아이콘 */
+.hamburger-icon {
+    display: none; /* 기본적으로 숨김 (큰 화면) */
+    background: none;
+    border: none;
+    color: #FFF;
+    font-size: 30px;
+    padding: 0; /* 패딩 제거 */
+    cursor: pointer;
+    margin-left: auto; /* 오른쪽에 배치 (flex 컨테이너에서) */
+    order: 2; /* 링크 컨테이너보다 뒤에 오도록 (오른쪽 정렬) */
+}
+
+/* 네비게이션 링크 컨테이너 */
+.nav-links-container {
+    display: flex; /* 기본적으로 flex (큰 화면) */
+    overflow-x: auto; /* 내용이 넘치면 스크롤되도록 설정 */
+    white-space: nowrap; /* 링크 텍스트 줄바꿈 방지 */
+    justify-content: flex-start; /* 링크들을 왼쪽 정렬 (스크롤바 생성을 위해) */
+    padding: 0;
+    flex-grow: 1; /* 남은 공간 차지 */
+    -webkit-overflow-scrolling: touch; /* iOS에서 스크롤 부드럽게 */
+    scrollbar-width: thin; /* Firefox 스크롤바 스타일 */
+    scrollbar-color: #555 #333; /* Firefox 스크롤바 색상 */
+}
+/* 웹킷 브라우저 (크롬, 사파리 등) 스크롤바 숨기기 (공간은 차지) */
+.nav-links-container::-webkit-scrollbar {
+    height: 6px; /* 스크롤바 높이 */
+}
+.nav-links-container::-webkit-scrollbar-track {
+    background: #444; /* 트랙 색상 */
+}
+.nav-links-container::-webkit-scrollbar-thumb {
+    background-color: #777; /* 핸들 색상 */
+    border-radius: 3px; /* 둥근 모서리 */
+    border: 1px solid #555; /* 테두리 */
+}
+
+.nav-links-container a {
     flex-shrink: 0; /* 링크 축소 방지 */
-    padding: 15px 15px; /* 패딩 좀 더 넓게 */
+    padding: 15px 7px; /* 좌우 패딩 더 줄임 (10px -> 7px) */
     text-align: center;
     color: #AAA; /* 비활성 링크 텍스트 */
     font-weight: 600;
@@ -58,24 +102,71 @@ body.center-content {
     transition: background-color 0.3s, color 0.3s;
     border-bottom: 3px solid transparent;
     text-decoration: none; /* 밑줄 제거 */
-    font-size: 14px;
+    font-size: 12px; /* 폰트 크기 더 줄임 (13px -> 12px) */
+    min-width: 85px; /* 각 링크의 최소 너비 설정 (90px -> 85px) */
 }
-.nav-bar a.active {
+.nav-links-container a.active {
     background-color: #444; /* 활성 링크 배경색 */
     color: #4CAF50; /* 초록색 텍스트 */
     border-bottom: 3px solid #4CAF50; /* 초록색 밑줄 */
 }
-.nav-bar a:hover:not(.active) {
+.nav-links-container a:hover:not(.active) {
     background-color: #555; /* 호버 시 배경색 */
     color: #CCC;
 }
 
+/* --- 모바일/작은 화면 햄버거 메뉴 미디어 쿼리 --- */
+@media (max-width: 768px) {
+    .nav-bar {
+        justify-content: space-between; /* 아이콘과 링크 컨테이너 분리 */
+        padding-right: 15px; /* 햄버거 아이콘 오른쪽 패딩 */
+    }
+    .hamburger-icon {
+        display: block; /* 작은 화면에서 햄버거 아이콘 보이기 */
+    }
+
+    .nav-links-container {
+        display: none; /* 기본적으로 숨김 */
+        flex-direction: column; /* 세로로 정렬 */
+        position: absolute; /* 절대 위치 */
+        top: 54px; /* 네비게이션 바 높이만큼 아래로 */
+        left: 0;
+        width: 100%;
+        background-color: #333; /* 배경색 */
+        z-index: 1000; /* 다른 요소 위로 */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        height: auto; /* 내용에 따라 높이 조절 */
+        max-height: calc(100vh - 54px); /* 화면 높이에서 네비바 높이 제외 */
+        overflow-y: auto; /* 메뉴 항목 많을 시 스크롤 */
+        transform: translateY(-100%); /* 초기 상태에서 위로 숨기기 */
+        transition: transform 0.3s ease-out; /* 부드러운 전환 효과 */
+    }
+
+    .nav-links-container.active {
+        display: flex; /* 햄버거 클릭 시 보이기 */
+        transform: translateY(0); /* 아래로 펼쳐지기 */
+    }
+
+    .nav-links-container a {
+        width: 100%; /* 메뉴 항목 전체 너비 */
+        padding: 15px 20px;
+        border-bottom: 1px solid #555; /* 메뉴 항목 구분선 */
+        text-align: left; /* 왼쪽 정렬 */
+        font-size: 16px; /* 폰트 크기 키움 */
+        min-width: unset; /* 최소 너비 제한 해제 */
+    }
+    .nav-links-container a:last-child {
+        border-bottom: none; /* 마지막 항목은 선 없음 */
+    }
+}
+
+
 /* Main content area for individual pages */
 .main-content-panel {
-    flex-grow: 1;
+    flex-grow: 1; /* 남은 공간을 모두 차지하도록 함 */
     display: flex; /* flex로 설정하여 내부 콘텐츠를 중앙 정렬 가능하게 함 */
     justify-content: center; /* 가로 중앙 정렬 */
-    align-items: center; /* 세로 중앙 정렬 */
+    align-items: flex-start; /* 세로 상단 정렬 (카드 자체가 스크롤될 수 있도록) */
     padding: 30px; /* Panel padding */
     background-color: #F8F8F8; /* Matches tab-panel background */
     box-sizing: border-box; /* 패딩 포함 크기 계산 */
@@ -84,6 +175,7 @@ body.center-content {
 .main-content-panel section {
     width: 100%; /* 패널 내 섹션이 100% 너비 차지 */
     max-width: 500px; /* 카드 자체의 최대 너비 설정 (로그인/회원가입 등) */
+    flex-shrink: 0; /* 섹션이 줄어들지 않도록 함 */
 }
 
 
@@ -93,11 +185,12 @@ body.center-content {
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */ /* 섹션에 이미 마진이 있으므로 제거 */
     color: #EEE; /* 카드 내부 텍스트 흰색 */
-    margin-left: auto; /* 카드 자체를 중앙 정렬 (main-content-panel이 flex일 때) */
-    margin-right: auto; /* 카드 자체를 중앙 정렬 */
+    /* margin-left: auto; */ /* flex 컨테이너에서 justify-content: center가 처리 */
+    /* margin-right: auto; */
     box-sizing: border-box;
+    width: 100%; /* max-width 500px 안에서 100% 차지 */
 }
 .card-header {
     font-size: 22px;
@@ -169,6 +262,30 @@ body.center-content {
 .btn-secondary:hover {
     background-color: #666;
 }
+
+/* --- 소셜 로그인 버튼 스타일 --- */
+.btn-social {
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex; /* 아이콘과 텍스트 정렬을 위해 flex 사용 */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease; /* 호버 효과 */
+}
+.btn-social:hover {
+    opacity: 0.8; /* 호버 시 투명도 조절 */
+}
+.btn-social i.material-icons {
+    font-size: 20px; /* 아이콘 크기 조정 */
+}
+/* --- 소셜 로그인 버튼 스타일 끝 --- */
+
+
 .btn-icon { /* List item info button */
     background: none;
     border: none;
