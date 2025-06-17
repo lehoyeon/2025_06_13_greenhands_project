@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 재배 가이드</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="login.html">로그인</a>
+                <a href="sing.html">회원가입</a>
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">실내 농장</a>
+            </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="guide-panel">
+                <div class="card">
+                    <div class="card-header">📋 맞춤형 농작물 재배 가이드라인 📋</div>
+                    <div class="card-content">
+                        <h3>선택된 농작물: 정보 없음 (예시: 토마토)</h3>
+                        <div class="placeholder-box">
+                            <p><strong>이 화면은 '내 농장'에서 작물을 선택하거나,</strong></p>
+                            <p><strong>'작물 추천'에서 추천 작물을 선택했을 때,</strong></p>
+                            <p><strong>해당 작물에 대한 상세 재배 가이드가 동적으로 표시될 공간입니다.</strong></p>
+                            <br>
+                            <h4>예시) 토마토 상세 재배 가이드:</h4>
+                            <ul>
+                                <li><strong>파종:</strong> 씨앗을 2-3cm 깊이로 심고 흙으로 덮어줍니다.</li>
+                                <li><strong>물 주기:</strong> 흙이 마르면 충분히 물을 줍니다. 과습은 피하세요. (화분 크기, 흙 종류에 따라 조절)</li>
+                                <li><strong>비료 주기:</strong> 성장 초기에는 질소 비료를, 꽃이 필 때는 인산 비료를 줍니다.</li>
+                                <li><strong>햇빛:</strong> 하루 6시간 이상 햇빛이 잘 드는 곳에 둡니다.</li>
+                                <li><strong>병충해 관리:</strong> 주기적으로 잎을 관찰하여 병충해 징후가 보이면 즉시 조치합니다.</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                        <button class="btn" onclick="window.location.href='4.html'">작물 상태 진단하기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '재배 가이드' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            // 로그인 여부 확인
+            if (!localStorage.getItem('loggedInUser')) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

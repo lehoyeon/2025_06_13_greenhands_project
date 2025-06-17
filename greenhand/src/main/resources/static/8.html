@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 수경재배 모니터링</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="login.html">로그인</a>
+                <a href="sing.html">회원가입</a>
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">수경 모니터링</a> </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="hydroponics-monitoring-panel">
+                <div class="card">
+                    <div class="card-header">📊 수경재배 실시간 모니터링 📈</div>
+                    <div class="card-content">
+                        <h3>현재 재배 환경 (A 구역)</h3>
+                        <div class="placeholder-box" style="height: 250px; text-align: left; padding: 15px;">
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">science</i> pH:</strong> <span id="monitor-ph">6.3</span> (적정)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">water_drop</i> EC (양액 농도):</strong> <span id="monitor-ec">1.7</span> dS/m (높음! <span style="color: #FFEB3B;">🚨</span>)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">thermostat</i> 수온:</strong> <span id="monitor-watertemp">23.5</span>°C (적정)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">device_thermostat</i> 기온:</strong> <span id="monitor-airtemp">25.0</span>°C</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">opacity_low</i> 습도:</strong> <span id="monitor-humidity">60</span>%</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">lightbulb</i> 조도:</strong> <span id="monitor-light">800</span> Lux</p>
+                            <p style="color: #AAA; font-size: 0.9em; margin-top: 10px;">(최종 업데이트: <span id="monitor-timestamp">2025-06-16 14:15:00</span>)</p>
+                            <br>
+                            <p style="color: #4CAF50; font-size: 0.95em;">(IoT 센서 연동 및 펌프/조명 등 장치 제어 통합 예정)</p>
+                        </div>
+
+                        <h3>장치 제어 및 상태</h3>
+                        <div class="placeholder-box" style="height: auto; text-align: left; padding: 15px;">
+                            <p style="margin-bottom: 10px;"><strong>양액 공급 펌프:</strong> <span id="pump-status" style="color: #4CAF50;">자동</span></p>
+                            <button class="btn btn-secondary" style="width: auto; margin-right: 10px;" onclick="alert('양액 펌프 수동 제어 구현 예정');">급수 실행</button>
+                            <button class="btn btn-secondary" style="width: auto;" onclick="alert('양액 펌프 스케줄 설정 구현 예정');">스마트 설정</button>
+                            <p style="margin-top: 15px; margin-bottom: 10px;"><strong>LED 식물등:</strong> <span id="light-status" style="color: #4CAF50;">ON</span></p>
+                            <button class="btn btn-secondary" style="width: auto;" onclick="alert('LED 식물등 제어 구현 예정');">ON/OFF 전환</button>
+                        </div>
+
+                        <h3>환경 데이터 추이 그래프</h3>
+                        <div class="placeholder-box" style="height: 180px;">
+                            <p><strong>[pH, EC, 온도 등 실시간/과거 데이터 그래프 시각화 영역]</strong></p>
+                            <p style="font-size: 0.9em; color: #BBB;">(시간별 데이터 변화를 꺾은선 그래프로 표시하여 추이 분석)</p>
+                            <p style="font-size: 0.85em; color: #AAA; margin-top: 5px;">(예: Chart.js 또는 D3.js 라이브러리 활용)</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '수경 모니터링' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            // 로그인 여부 확인
+            if (!localStorage.getItem('loggedInUser')) {
+                alert('로그인이 필요합니다.');
+                window.location.href = 'login.html';
+            }
+
+            // 실시간 데이터 시뮬레이션 (storyboard 용)
+            function updateMonitoringData() {
+                const ph = (Math.random() * (7.0 - 5.5) + 5.5).toFixed(1); // pH 5.5 ~ 7.0
+                const ec = (Math.random() * (2.5 - 1.0) + 1.0).toFixed(1); // EC 1.0 ~ 2.5
+                const watertemp = (Math.random() * (26.0 - 20.0) + 20.0).toFixed(1); // 수온 20 ~ 26
+                const airtemp = (Math.random() * (28.0 - 22.0) + 22.0).toFixed(1); // 기온 22 ~ 28
+                const humidity = (Math.random() * (80 - 50) + 50).toFixed(0); // 습도 50 ~ 80
+                const light = (Math.random() * (1000 - 500) + 500).toFixed(0); // 조도 500 ~ 1000
+
+                document.getElementById('monitor-ph').textContent = ph;
+                document.getElementById('monitor-ec').textContent = ec;
+                document.getElementById('monitor-watertemp').textContent = watertemp;
+                document.getElementById('monitor-airtemp').textContent = airtemp;
+                document.getElementById('monitor-humidity').textContent = humidity;
+                document.getElementById('monitor-light').textContent = light;
+                document.getElementById('monitor-timestamp').textContent = new Date().toLocaleString();
+
+                // EC가 높을 때 경고 색상
+                const ecElement = document.getElementById('monitor-ec');
+                if (parseFloat(ec) > 2.0) {
+                    ecElement.style.color = '#FF5252'; // 빨간색
+                } else {
+                    ecElement.style.color = ''; // 기본색
+                }
+            }
+
+            // 3초마다 데이터 업데이트 시뮬레이션
+            setInterval(updateMonitoringData, 3000);
+            updateMonitoringData(); // 초기 로드 시 한 번 업데이트
+        });
+    </script>
+</body>
+</html>
