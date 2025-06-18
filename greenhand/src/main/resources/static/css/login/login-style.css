@@ -1,0 +1,174 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2; /* 배경색 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #333;
+}
+
+.login-container {
+    background-color: #36393f; /* 어두운 배경색 */
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px; /* 너비 조절 */
+    color: #f0f0f0; /* 텍스트 색상 */
+}
+
+h1 {
+    color: #4CAF50; /* AgroBuddy 색상 */
+    margin-bottom: 30px;
+    font-size: 28px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #cccccc; /* 라벨 색상 */
+}
+
+input[type="text"],
+input[type="password"] {
+    width: calc(100% - 20px); /* 패딩 고려 */
+    padding: 12px 10px;
+    border: 1px solid #555; /* 테두리 색상 */
+    border-radius: 5px;
+    background-color: #444; /* 입력 필드 배경색 */
+    color: #f0f0f0; /* 입력 필드 텍스트 색상 */
+    font-size: 16px;
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #aaa; /* 플레이스홀더 색상 */
+}
+
+.btn-login {
+    width: 100%;
+    padding: 15px;
+    background-color: #4CAF50; /* 로그인 버튼 색상 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn-login:hover {
+    background-color: #45a049;
+}
+
+.separator {
+    margin: 30px 0;
+    color: #ccc;
+    position: relative;
+}
+
+.separator::before,
+.separator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background-color: #555;
+}
+
+.separator::before {
+    left: 0;
+}
+
+.separator::after {
+    right: 0;
+}
+
+.btn-social {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-social img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.btn-social.google {
+    background-color: #dd4b39; /* Google 빨간색 */
+    color: white;
+}
+
+.btn-social.google:hover {
+    background-color: #c23321;
+}
+
+.btn-social.kakao {
+    background-color: #FEE500; /* Kakao 노란색 */
+    color: #3C1E1E; /* Kakao 텍스트 색상 */
+}
+
+.btn-social.kakao:hover {
+    background-color: #e6cb00;
+}
+
+.btn-social.naver {
+    background-color: #03C75A; /* Naver 초록색 */
+    color: white;
+}
+
+.btn-social.naver:hover {
+    background-color: #02b34a;
+}
+
+.btn-register {
+    display: block;
+    width: calc(100% - 30px);
+    padding: 15px;
+    margin-top: 30px;
+    background-color: #6c757d; /* 회원가입 버튼 색상 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-register:hover {
+    background-color: #5a6268;
+}
+
+.error-message {
+    color: #ff6347; /* 빨간색 */
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.success-message {
+    color: #4CAF50; /* 초록색 */
+    margin-top: 15px;
+    font-size: 14px;
+    text-align: center;
+}

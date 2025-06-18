@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 작물 진단</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">수경 모니터링</a> </div>
+            </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="diagnosis-panel">
+                <div class="card">
+                    <div class="card-header">📸 사용자 사진 기반 작물 상태 진단 📸</div>
+                    <div class="card-content">
+                        <p>작물 사진을 업로드 해주세요.</p>
+                        <button class="btn" onclick="alert('사진 업로드 기능 시뮬레이션');">
+                            사진 업로드
+                        </button>
+                        <div class="placeholder-box image-placeholder" style="margin-top: 20px;">
+                            업로드된 이미지 미리보기 공간
+                        </div>
+                        <button class="btn" onclick="window.location.href='5.html'">진단 시작</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '작물 진단' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

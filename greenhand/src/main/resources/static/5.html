@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 문제 해결</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">수경 모니터링</a> </div>
+            </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="solution-panel">
+                <div class="card">
+                    <div class="card-header">🔍 진단 결과 및 해결 방안 제시 💡</div>
+                    <div class="card-content">
+                        <h3>진단 결과: 토마토 잎의 검은 반점 (예시)</h3>
+                        <div class="card" style="background-color: #444; margin-top: 15px;">
+                            <div class="card-header" style="background-color: #444; border-bottom: 1px solid #777; color: #EEE;">
+                                <h4>진단 결과:</h4>
+                            </div>
+                            <div class="card-content">
+                                <p>- 잎에 검은 반점이 보입니다.</p>
+                                <p>- <strong>곰팡이병 (역병) 초기 증상</strong>일 수 있습니다.</p>
+                                <h4>성장 저해 요인:</h4>
+                                <ul>
+                                    <li>높은 습도와 불충분한 통풍</li>
+                                    <li>병원균 감염</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card" style="background-color: #444; margin-top: 15px;">
+                            <div class="card-header" style="background-color: #444; border-bottom: 1px solid #777; color: #EEE;">
+                                <h4>해결 방안:</h4>
+                            </div>
+                            <div class="card-content">
+                                <ol>
+                                    <li><strong>감염된 잎 제거:</strong> 즉시 감염된 잎과 가지를 잘라내어 병의 확산을 막아주세요.</li>
+                                    <li><strong>통풍 개선:</strong> 작물 간 간격을 조절하고, 주변 잡초를 제거하여 공기 순환을 원활하게 해주세요.</li>
+                                    <li><strong>친환경 살균제 살포:</strong> 초기 증상이므로 베이킹소다 희석액을 살포해보세요.</li>
+                                    <li><strong>물 주기 조절:</strong> 잎에 물이 닿지 않도록 뿌리에 직접 물을 주고, 흙이 충분히 마른 후 다시 물을 주세요.</li>
+                                </ol>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                        <button class="btn" onclick="window.location.href='6.html'">챗봇에게 추가 문의</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '문제 해결' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

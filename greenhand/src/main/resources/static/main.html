@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 내 농장 (메인)</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">실내 농장</a>
+            </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="mycrops-panel">
+                <div class="card">
+                    <div class="card-header">🏡 내 농장물 진행도 📈</div>
+                    <div class="card-content">
+                        <p style="text-align: center; font-size: 1.1em; color: #EEE; margin-bottom: 20px;">
+                            <span id="current-username-display">사용자명</span>님의 농장</p>
+                        <ul class="crop-list">
+                            <li class="user-crop-item" data-crop-key="tomato" onclick="selectCrop('tomato')">
+                                <span>토마토 (열매 성장 중)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 70%;">70%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            <li class="user-crop-item" data-crop-key="lettuce" onclick="selectCrop('lettuce')">
+                                <span>상추 (잎 수확 가능)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 45%;">45%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            <li class="user-crop-item" data-crop-key="pepper" onclick="selectCrop('pepper')">
+                                <span>고추 (모종 단계)</span>
+                                <div class="progress-bar-container"><div class="progress-bar" style="width: 10%;">10%</div></div>
+                                <button class="btn-icon"><i class="material-icons">info</i></button>
+                            </li>
+                            </ul>
+                        <div class="user-crop-details" id="selected-crop-details" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #555;">
+                            <p><strong>작물명:</strong> <span id="detail-name">선택 없음</span></p>
+                            <p><strong>시작일:</strong> <span id="detail-start-date"></span></p>
+                            <p><strong>화분 크기:</strong> <span id="detail-pot-size"></span></p>
+                            <p><strong>물의 양:</strong> <span id="detail-water-amount"></span></p>
+                            <p><strong>물 주는 주기:</strong> <span id="detail-watering-frequency"></span></p>
+                            <p><strong>흙 종류:</strong> <span id="detail-soil-type"></span></p>
+                            <p><strong>진행도:</strong> <span id="detail-progress"></span></p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="detail-progress-bar"></div>
+                            </div>
+                            <button class="btn" style="margin-top: 15px;" onclick="window.location.href='3.html'; alert('실제 앱에서는 선택된 작물 정보로 재배 가이드가 채워집니다.');">
+                                선택 작물 상세 가이드 보기
+                            </button>
+                            <button class="btn btn-secondary" style="margin-top: 5px;">
+                                선택 작물 삭제
+                            </button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='1.html'">
+                            + 내 작물 추가
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '내 농장' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // '내 농장' 페이지 로드 시 사용자 이름 및 작물 정보 로드
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                document.getElementById('current-username-display').textContent = loggedInUser;
+            }
+            selectCrop('tomato'); // 기본 작물 선택 (실제로는 로그인된 사용자 DB에서 가져올 것)
+        });
+    </script>
+</body>
+</html>

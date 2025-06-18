@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 환경 데이터 모니터링</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <button class="hamburger-icon" onclick="toggleNavMenu()">
+                <i class="material-icons">menu</i>
+            </button>
+            <div class="nav-links-container" id="navLinksContainer">
+                <a href="main.html">내 농장</a>
+                <a href="1.html">작물 추가</a>
+                <a href="2.html">작물 추천</a>
+                <a href="3.html">재배 가이드</a>
+                <a href="4.html">작물 진단</a>
+                <a href="5.html">문제 해결</a>
+                <a href="6.html">챗봇 상담</a>
+                <a href="7.html">환경 모니터링</a>
+                <a href="8.html">수경 모니터링</a> </div>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="environment-monitoring-panel">
+                <div class="card">
+                    <div class="card-header">📊 환경 데이터 모니터링 (실시간) 📈</div>
+                    <div class="card-content">
+                        <h3>현재 실시간 환경 데이터</h3>
+                        <div class="placeholder-box" style="height: 250px; text-align: left; padding: 15px;">
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">thermostat</i> 기온:</strong> 25.5°C</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">opacity</i> 습도:</strong> 68%</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">terrain</i> 토양 습도:</strong> 45% (센서 연동)</p>
+                            <p><strong><i class="material-icons" style="font-size: 1.1em; vertical-align: middle; margin-right: 5px;">wb_sunny</i> 일조량:</strong> 750 Lux</p>
+                            <p style="color: #AAA; font-size: 0.9em; margin-top: 10px;">(최종 업데이트: 2025-06-13 16:45:00)</p>
+                            <br><br>
+                            <p style="color: #4CAF50; font-size: 0.95em;">(기상청 API 및 IoT 센서 연동을 통해 실시간 데이터 수집 및 업데이트 예정)</p>
+                        </div>
+                        <br>
+
+                        <h3>과거 환경 데이터 추이</h3>
+                        <div class="placeholder-box" style="height: 180px;">
+                            <p><strong>[온도/습도/일조량 등 그래프 시각화 영역]</strong></p>
+                            <p style="font-size: 0.9em; color: #BBB;">(기간별 환경 데이터 변화를 꺾은선 그래프로 표시하여 추이 분석)</p>
+                            <p style="font-size: 0.85em; color: #AAA; margin-top: 5px;">(예: Chart.js 또는 D3.js 라이브러리 활용)</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../../../../스토리보드/js/script.js"></script>
+    <script>
+        // 페이지 로드 시, nav-bar의 '환경 모니터링' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ccc93a4ef4efcbf5df114841f4c5b32b   # REST API 키
+            client-secret: ""  # 카카오는 보통 비워둠
+            client-authentication-method: none   # 빈 시크릿이면 none 으로 설정
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"  # 반드시 이 패턴
+            scope:
+              - profile_nickname
+              - profile_image
+            client-name: Kakao
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  datasource:
+    url: jdbc:mariadb://192.168.0.30:3306/greenhand
+    username: root
+    password: user1234
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+server:
+  tomcat:
+    uri-encoding: UTF-8

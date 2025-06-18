@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroBuddy 로그인</title>
+    <link rel="stylesheet" href="/css/login/login-style.css">
+    <style>
+        /* 모달 스타일 (기존 그대로) */
+        .modal {
+          display: none;
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: rgba(0,0,0,0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        .modal-content {
+          background: #fff;
+          padding: 1.5rem;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 400px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .modal-header { font-size: 1.2rem; margin-bottom: 1rem; }
+        .modal-footer { text-align: right; margin-top: 1rem; }
+        .modal-footer button {
+          padding: 0.5rem 1rem; border: none;
+          background: #4CAF50; color: #fff;
+          border-radius: 4px; cursor: pointer;
+        }
+        .btn-find {
+          margin: 0.5rem 0;
+          width: 100%; padding: 0.75rem;
+          font-size: 1rem; border: none;
+          background: #2196F3; color: white;
+          border-radius: 4px; cursor: pointer;
+        }
+        .social-login {
+          margin: 0.5rem 0;
+          width: 100%; padding: 0.75rem;
+          font-size: 1rem; border: none;
+          background: #FEE500; color: #000;
+          border-radius: 4px; cursor: pointer;
+        }
+        .social-login img { vertical-align: middle; margin-right: 0.5rem; }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <h1>AgroBuddy 로그인</h1>
+    <form action="/do-login" method="post">
+        <div class="form-group">
+            <label for="username">사용자 이름</label>
+            <input type="text" id="username" name="username" placeholder="ID를 입력하세요" required>
+        </div>
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+        </div>
+        <button type="submit" class="btn-login">로그인</button>
+    </form>
+
+    <!-- 카카오 소셜 로그인 버튼 -->
+    <button class="social-login" onclick="window.location.href='/oauth2/authorization/kakao'">
+        <img src="/images/kakao-icon.png" alt="Kakao">카카오 계정으로 로그인
+    </button>
+
+    <!-- 아이디/비밀번호 찾기 버튼 -->
+    <button class="btn-find" onclick="openModal('findIdModal')">아이디 찾기</button>
+    <button class="btn-find" onclick="openModal('findPwModal')">비밀번호 찾기</button>
+
+    <a href="/login/signup.html" class="btn-register">회원가입</a>
+</div>
+
+<!-- 아이디 찾기 모달 -->
+<div class="modal" id="findIdModal">
+    <div class="modal-content">
+        <div class="modal-header">아이디 찾기</div>
+        <div class="modal-body">
+            <label for="find-email">등록된 이메일</label>
+            <input type="email" id="find-email" placeholder="이메일을 입력하세요" style="width:100%; padding:0.5rem; margin-bottom:0.5rem;">
+            <label for="find-phone">등록된 전화번호</label>
+            <input type="text" id="find-phone" placeholder="전화번호를 입력하세요" style="width:100%; padding:0.5rem;">
+        </div>
+        <div class="modal-footer">
+            <button onclick="submitFindId()">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 비밀번호 찾기 모달 -->
+<div class="modal" id="findPwModal">
+    <div class="modal-content">
+        <div class="modal-header">비밀번호 찾기</div>
+        <div class="modal-body">
+            <label for="find-userid">아이디</label>
+            <input type="text" id="find-userid" placeholder="아이디를 입력하세요" style="width:100%; padding:0.5rem; margin-bottom:0.5rem;">
+            <label for="find-phone-pw">등록된 전화번호</label>
+            <input type="text" id="find-phone-pw" placeholder="전화번호를 입력하세요" style="width:100%; padding:0.5rem;">
+        </div>
+        <div class="modal-footer">
+            <button onclick="submitFindPw()">확인</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    // 아이디 찾기 제출: 이메일 or 전화번호 중 하나라도 입력되면 서버로 전송
+    function submitFindId() {
+      const email = document.getElementById('find-email').value.trim();
+      const phone = document.getElementById('find-phone').value.trim();
+      const params = new URLSearchParams();
+      if (email) params.append('email', email);
+      if (phone) params.append('phone', phone);
+      fetch('/user/find-id', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: params.toString()
+      })
+      .then(res => res.ok ? res.text() : Promise.reject('등록된 정보가 없습니다.'))
+      .then(id => {
+        alert('회원님의 아이디: ' + id);
+        closeModal('findIdModal');
+      })
+      .catch(msg => alert(msg));
+    }
+
+    // 비밀번호 찾기 제출: 아이디 + 전화번호
+    function submitFindPw() {
+      const userId = document.getElementById('find-userid').value.trim();
+      const phone = document.getElementById('find-phone-pw').value.trim();
+      if (!userId || !phone) {
+        alert('아이디와 전화번호를 모두 입력하세요.');
+        return;
+      }
+      const params = new URLSearchParams();
+      params.append('userId', userId);
+      params.append('phone', phone);
+      fetch('/user/find-password', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: params.toString()
+      })
+      .then(res => {
+        if (res.ok) {
+          alert('검증되었습니다. 비밀번호 재설정 페이지로 이동합니다.');
+          window.location.href = `/reset-password?userId=${encodeURIComponent(userId)}`;
+        } else {
+          return res.text().then(text => Promise.reject(text));
+        }
+      })
+      .catch(msg => alert(msg));
+    }
+
+    // 모달 외부 클릭 시 닫기
+    window.onclick = e => {
+      ['findIdModal','findPwModal'].forEach(id => {
+        const m = document.getElementById(id);
+        if (e.target === m) closeModal(id);
+      });
+    };
+</script>
+</body>
+</html>
