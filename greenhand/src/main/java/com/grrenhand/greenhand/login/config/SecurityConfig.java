@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/login/login.html", // login.html 페이지 허용
                                 "/login/signup.html",// signup.html 페이지 허용
                                 "/register",         // 회원가입 요청 처리 URL 허용
-                                "/oauth2/**"         // OAuth2 로그인 관련 URL 허용 (카카오 로그인 흐름에 필요)
+                                "/oauth2/**",        // OAuth2 로그인 관련 URL 허용
+                                "/api/**"           // 모든 /api/ 경로 허용 (더 넓은 범위)
                         ).permitAll() // 위의 경로들은 인증 없이 접근 허용
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )

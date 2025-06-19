@@ -5,110 +5,432 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
     <link rel="stylesheet" href="/css/login/signup-style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
 <div class="signup-container">
     <h1>회원가입</h1>
-    <form action="/register" method="post">
+    <form id="signupForm" action="/register" method="post" autocomplete="off">
         <div class="form-group">
             <label for="username">사용자 아이디 (고유)</label>
             <input type="text" id="username" name="username" placeholder="아이디를 입력하세요" required>
+            <span class="field-error-message" id="username-error"></span>
+            <i class="material-icons validation-icon" id="username-icon"></i>
         </div>
         <div class="form-group">
             <label for="password">비밀번호</label>
             <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+            <span class="field-error-message" id="password-error"></span>
+            <i class="material-icons validation-icon" id="password-icon"></i>
         </div>
         <div class="form-group">
             <label for="confirmPassword">비밀번호 확인</label>
             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="비밀번호를 다시 입력하세요" required>
+            <span class="field-error-message" id="confirmPassword-error"></span>
+            <i class="material-icons validation-icon" id="confirmPassword-icon"></i>
         </div>
         <div class="form-group">
             <label for="nickname">닉네임</label>
             <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요">
+            <span class="field-error-message" id="nickname-error"></span>
+            <i class="material-icons validation-icon" id="nickname-icon"></i>
         </div>
         <div class="form-group">
             <label for="name">이름</label>
             <input type="text" id="name" name="name" placeholder="이름을 입력하세요">
+            <span class="field-error-message" id="name-error"></span>
+            <i class="material-icons validation-icon" id="name-icon"></i>
         </div>
         <div class="form-group">
             <label for="email">이메일</label>
-            <input type="email" id="email" name="email" placeholder="이메일을 입력하세요">
+            <input type="email" id="email" name="email" placeholder="아이디/비밀번호 찾을시 필요 (선택 사항)">
+            <span class="field-error-message" id="email-error"></span>
+            <i class="material-icons validation-icon" id="email-icon"></i>
         </div>
         <div class="form-group">
             <label for="address">주소</label>
             <input type="text" id="address" name="address" placeholder="주소를 입력하세요">
+            <span class="field-error-message" id="address-error"></span>
+            <i class="material-icons validation-icon" id="address-icon"></i>
         </div>
         <div class="form-group">
-            <label for="phoneNumber">전화번호</label> <input type="text" id="phoneNumber" name="phoneNumber" placeholder="전화번호를 입력하세요">
+            <label for="phoneNumber">전화번호</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" placeholder="전화번호를 입력하세요 (아이디/비밀번호 찾을시 필요)">
+            <span class="field-error-message" id="phoneNumber-error"></span>
+            <i class="material-icons validation-icon" id="phoneNumber-icon"></i>
         </div>
-        <button type="submit" class="btn-signup">회원가입</button>
+        <button type="submit" class="btn-signup">가입 완료</button>
     </form>
-
-    <p class="message error-message" id="signup-error-message" style="display: none;">
-    </p>
-    <p class="message success-message" id="signup-success-message" style="display: none;">
-        회원가입이 완료되었습니다. 로그인해주세요.
-    </p>
 
     <p><a href="/login/login.html" style="color: #6c757d; text-decoration: none;">로그인 페이지로 돌아가기</a></p>
 </div>
 
+<div id="validationModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            회원가입 오류 발생!
+        </div>
+        <div class="modal-body">
+            <p>입력 정보를 확인해주세요:</p>
+            <ul id="modalErrorList">
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="closeModal()">확인</button>
+        </div>
+    </div>
+</div>
+
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" style="color: #4CAF50;">
+            회원가입 성공!
+        </div>
+        <div class="modal-body">
+            <p>회원가입이 성공적으로 완료되었습니다.<br>로그인 페이지로 이동합니다.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="close-button" onclick="location.href='/login/login.html'">로그인 페이지로</button>
+        </div>
+    </div>
+</div>
+
+
 <script>
-    // URL 파라미터를 확인하여 메시지를 표시하는 JavaScript
+    const form = document.getElementById('signupForm');
+    const inputs = form.querySelectorAll('input'); // 모든 input 요소
+    const modal = document.getElementById('validationModal'); // 유효성 오류 팝업 모달
+    const successModal = document.getElementById('successModal'); // 성공 팝업 모달
+    const modalErrorList = document.getElementById('modalErrorList'); // 오류 목록을 표시할 ul
+
+    // 유효성 검사 규칙 (서버 DTO 규칙과 동일하게 맞춰야 함)
+    const validationRules = {
+        username: {
+            required: true,
+            min: 6,
+            max: 20,
+            pattern: /^[a-zA-Z0-9]+$/, // 구문 오류 수정
+            messages: {
+                required: "아이디는 필수 입력 값입니다.",
+                min: "아이디는 6자 이상 20자 이하로 입력해주세요.",
+                max: "아이디는 20자 이하로 입력해주세요.",
+                pattern: "아이디는 영문과 숫자만 가능합니다."
+            }
+        },
+        password: {
+            required: true,
+            min: 8,
+            max: 16,
+            pattern: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).*$/, // 구문 오류 수정
+            messages: {
+                required: "비밀번호는 필수 입력 값입니다.",
+                min: "비밀번호는 8자 이상 16자 이하로 입력해주세요.",
+                max: "비밀번호는 16자 이하로 입력해주세요.",
+                pattern: "비밀번호는 영문, 숫자, 특수문자를 포함해야 합니다."
+            }
+        },
+        confirmPassword: {
+            required: true,
+            matches: 'password', // 'password' 필드와 일치해야 함
+            messages: {
+                required: "비밀번호 확인은 필수 입력 값입니다.",
+                matches: "비밀번호가 일치하지 않습니다."
+            }
+        },
+        nickname: {
+            required: true,
+            min: 2,
+            max: 10,
+            messages: {
+                required: "닉네임은 필수 입력 값입니다.",
+                min: "닉네임은 2자 이상 10자 이하로 입력해주세요.",
+                max: "닉네임은 10자 이하로 입력해주세요."
+            }
+        },
+        name: { // 이름은 선택사항이므로 required: false (규칙에 없으면 됨)
+            min: 2,
+            max: 20,
+            pattern: /^[a-zA-Z가-힣]+$/, // 구문 오류 수정
+            messages: {
+                min: "이름은 2자 이상 20자 이하로 입력해주세요.",
+                max: "이름은 20자 이하로 입력해주세요.",
+                pattern: "이름은 한글 또는 영문만 가능합니다."
+            }
+        },
+        email: { // 이메일은 선택사항이므로 required: false (규칙에 없으면 됨)
+            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // 구문 오류 수정
+            max: 100,
+            messages: {
+                pattern: "유효한 이메일 주소를 입력해주세요.",
+                max: "이메일은 100자 이하로 입력해주세요."
+            }
+        },
+        address: { // 주소는 선택사항이므로 required: false (규칙에 없으면 됨)
+            max: 255,
+            messages: {
+                max: "주소는 255자 이하로 입력해주세요."
+            }
+        },
+        phoneNumber: { // 전화번호는 선택사항이므로 required: false (규칙에 없으면 됨)
+            pattern: /^[0-9-]+$/, // 구문 오류 수정
+            max: 20,
+            messages: {
+                pattern: "전화번호는 숫자와 하이픈(-)만 가능합니다.",
+                max: "전화번호는 20자 이하로 입력해주세요."
+            }
+        }
+    };
+
+    // 페이지 로드 시 URL 파라미터 처리 (성공 팝업 방지 및 이전 입력 값 복원)
     document.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams(window.location.search);
-        const errorMessageElement = document.getElementById('signup-error-message'); // Element 변수명 통일
-        const successMessageElement = document.getElementById('signup-success-message'); // Element 변수명 통일
 
-        if (params.has('error')) {
-            if (errorMessageElement) {
-                errorMessageElement.style.display = 'block';
-                const errorKey = params.get('errorText'); // LoginController에서 전달한 에러 코드 (예: "passwordMismatch")
-
-                switch(errorKey) {
-                    case 'validationError':
-                        errorMessageElement.innerText = '입력 값을 확인해주세요. (아이디, 비밀번호, 이메일 등 유효성 오류)';
-                        break;
-                    case 'passwordMismatch':
-                        errorMessageElement.innerText = '비밀번호와 비밀번호 확인이 일치하지 않습니다.';
-                        break;
-                    case 'usernameExists':
-                        errorMessageElement.innerText = '이미 존재하는 아이디입니다.';
-                        break;
-                    case 'nicknameExists':
-                        errorMessageElement.innerText = '이미 사용 중인 닉네임입니다.';
-                        break;
-                    case 'emailExists':
-                        errorMessageElement.innerText = '이미 사용 중인 이메일입니다.';
-                        break;
-                    case 'serverError':
-                        errorMessageElement.innerText = '회원가입 중 알 수 없는 서버 오류가 발생했습니다.';
-                        break;
-                    case 'unknownSignupError':
-                        errorMessageElement.innerText = '회원가입 실패: 예상치 못한 오류가 발생했습니다.';
-                        break;
-                    default:
-                        errorMessageElement.innerText = '회원가입 실패: 알 수 없는 오류.';
-                        break;
+        // 이전 입력 값 복원 (서버에서 유효성 검사 실패 후 리다이렉트 시)
+        const formDataFromLocalStorage = localStorage.getItem('signupFormData');
+        if (formDataFromLocalStorage) {
+            const data = JSON.parse(formDataFromLocalStorage);
+            for (const key in data) {
+                const input = document.getElementById(key);
+                if (input) {
+                    input.value = data[key];
                 }
             }
-        } else {
-            if (errorMessageElement) {
-                errorMessageElement.style.display = 'none';
+            localStorage.removeItem('signupFormData'); // 사용 후 삭제
+            inputs.forEach(validateField); // <-- 데이터 복원 후 필드 유효성 재검사 활성화 (팝업 문제 해결 후)
+        }
+
+        // URL 파라미터 정리 (페이지 로드 시 불필요한 팝업 방지)
+        // 이 블록은 URL 정리 역할만 합니다. 팝업을 띄우지 않습니다.
+        if (params.has('signupSuccess') || params.has('error') || params.has('errorText')) {
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('signupSuccess');
+            newUrl.searchParams.delete('error');
+            newUrl.searchParams.delete('errorText');
+            window.history.replaceState({}, document.title, newUrl.toString());
+        }
+    });
+
+    // 폼 제출 이벤트 리스너 (AJAX 통신)
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault(); // 폼의 기본 제출 동작 방지
+
+        let allClientValid = true;
+        const clientErrors = [];
+        const formData = {}; // 서버로 보낼 데이터 객체
+
+        // 1. 클라이언트 측 유효성 검사 수행 및 데이터 수집
+        inputs.forEach(input => {
+            const fieldValid = validateField(input); // 실시간 검사 함수 호출
+            formData[input.name] = input.value.trim(); // 모든 필드 값 수집
+            if (!fieldValid) {
+                allClientValid = false;
+                const errorSpan = document.getElementById(input.id + '-error');
+                if (errorSpan && errorSpan.textContent) {
+                    // 필드 에러 메시지를 수집하여 팝업에 표시
+                    clientErrors.push(
+                        (document.querySelector(`label[for="${input.id}"]`)?.textContent || input.name).replace(' (고유)', '').replace(' (선택 사항)', '').trim()
+                        + ": " + errorSpan.textContent
+                    );
+                }
+            }
+        });
+
+        // 2. 클라이언트 유효성 검사 실패 시 팝업 표시 및 제출 방지
+        if (!allClientValid) {
+            showModal(clientErrors); // 클라이언트 유효성 검사 오류 팝업 표시
+            return; // 서버로 제출하지 않고 여기서 종료
+        }
+
+        // 3. 클라이언트 유효성 검사를 통과했을 경우, 서버로 AJAX 요청
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', // JSON 형태로 데이터 전송
+                },
+                body: JSON.stringify(formData), // JSON 문자열로 변환하여 전송
+            });
+
+            if (response.ok) { // HTTP 상태 코드 200-299 범위 (성공)
+                const data = await response.json();
+                console.log("회원가입 성공:", data.message);
+                showSuccessModal(); // 성공 팝업 표시
+            } else { // HTTP 상태 코드 400, 500 등 (오류)
+                const errorData = await response.json(); // 서버에서 보낸 JSON 오류 응답 파싱
+                console.error("회원가입 실패:", errorData);
+
+                const serverErrors = [];
+                // 서버에서 필드별 오류를 보낸 경우 (LoginController의 JSON 응답 형식)
+                for (const fieldName in errorData) {
+                    if (errorData.hasOwnProperty(fieldName)) {
+                        let labelText = document.querySelector(`label[for="${fieldName}"]`)?.textContent || fieldName;
+                        labelText = labelText.replace(' (고유)', '').replace(' (선택 사항)', '').trim();
+
+                        // 특정 필드에 대한 오류 메시지를 해당 필드 옆에 표시
+                        const inputElement = document.getElementById(fieldName);
+                        const errorSpanElement = document.getElementById(fieldName + '-error');
+                        // 오류가 있는 필드만 invalid 클래스 추가 및 메시지 표시
+                        if (inputElement) inputElement.classList.add('is-invalid');
+                        if (errorSpanElement) errorSpanElement.textContent = errorData[fieldName];
+
+                        // 아이콘도 invalid로 변경
+                        const iconElement = document.getElementById(fieldName + '-icon');
+                        if (iconElement) {
+                            iconElement.classList.remove('valid');
+                            iconElement.classList.add('invalid');
+                            iconElement.textContent = 'cancel'; // X 아이콘
+                        }
+
+                        serverErrors.push(`${labelText}: ${errorData[fieldName]}`);
+                    }
+                }
+                // 모든 오류 메시지를 팝업으로 표시
+                if (serverErrors.length > 0) {
+                    showModal(serverErrors);
+                } else {
+                    showModal(["알 수 없는 오류가 발생했습니다."]); // 예기치 않은 오류 형식에 대한 폴백
+                }
+            }
+        } catch (error) {
+            console.error('네트워크 오류 또는 서버 응답 없음:', error);
+            showModal(["네트워크 오류가 발생했거나 서버에 연결할 수 없습니다."]);
+        }
+    });
+
+    // 실시간 유효성 검사를 위한 이벤트 리스너 (input과 blur)
+    inputs.forEach(input => {
+        // label 텍스트에서 ' (고유)' 및 ' (선택 사항)' 제거 (한 번만 실행되도록)
+        const label = document.querySelector(`label[for="${input.id}"]`);
+        if (label) {
+            label.textContent = label.textContent.replace(' (고유)', '').replace(' (선택 사항)', '').trim();
+        }
+
+        input.addEventListener('input', () => validateField(input));
+        input.addEventListener('blur', () => validateField(input));
+    });
+
+    function validateField(input) {
+        const fieldName = input.name;
+        const value = input.value.trim();
+        const rules = validationRules[fieldName];
+        const errorSpan = document.getElementById(input.id + '-error');
+        const iconElement = document.getElementById(input.id + '-icon'); // 아이콘 요소 가져오기
+
+        let isValid = true;
+        let errorMessage = '';
+
+        // 초기화: 유효성 검사 전에 클래스, 메시지, 아이콘 모두 초기화
+        input.classList.remove('is-valid', 'is-invalid');
+        if (errorSpan) errorSpan.textContent = '';
+        if (iconElement) {
+            iconElement.classList.remove('valid', 'invalid');
+            iconElement.textContent = ''; // 아이콘 내용 지우기
+        }
+
+        if (!rules) return true; // 이 필드에 규칙이 없으면 통과 (예: required: false인 필드가 비어있는 경우)
+
+        // required 검사 (값이 없으면 isValid = false, 에러 메시지 설정)
+        if (rules.required && value === '') {
+            isValid = false;
+            errorMessage = rules.messages.required;
+        }
+        // 값이 있을 때만 다른 유효성 규칙 적용 (required가 false인 필드도 처리)
+        if (value !== '') {
+            // 최소 길이 검사
+            if (isValid && rules.min && value.length < rules.min) {
+                isValid = false;
+                errorMessage = rules.messages.min;
+            }
+            // 최대 길이 검사
+            if (isValid && rules.max && value.length > rules.max) {
+                isValid = false;
+                errorMessage = rules.messages.max;
+            }
+            // 정규식 패턴 검사
+            if (isValid && rules.pattern && !rules.pattern.test(value)) {
+                isValid = false;
+                errorMessage = rules.messages.pattern;
+            }
+            // 비밀번호 일치 검사 (confirmPassword 전용)
+            if (isValid && fieldName === 'confirmPassword' && rules.matches) {
+                const passwordInput = document.getElementById(rules.matches);
+                if (passwordInput && value !== passwordInput.value) {
+                    isValid = false;
+                    errorMessage = rules.messages.matches;
+                }
+                // 비밀번호 변경 시 확인 비밀번호 재검사 트리거
+                if (passwordInput) {
+                    passwordInput.removeEventListener('input', revalidateConfirmPassword); // 중복 리스너 방지
+                    passwordInput.addEventListener('input', revalidateConfirmPassword);
+                }
             }
         }
 
-        // 회원가입 성공 메시지 처리 (LoginController에서 'signupSuccess=true'로 전달)
-        if (params.has('signupSuccess')) { // <-- 파라미터 이름 수정
-            if (successMessageElement) {
-                successMessageElement.style.display = 'block';
+        function revalidateConfirmPassword() {
+            validateField(document.getElementById('confirmPassword'));
+        }
+
+        // 최종 상태 반영: 유효성 검사 결과에 따라 클래스와 아이콘 업데이트
+        if (isValid && value !== '') { // 값이 있고 유효할 때만 valid 표시 (선택 사항 필드가 비어있지 않은 경우 포함)
+            input.classList.add('is-valid');
+            if (iconElement) {
+                iconElement.classList.add('valid');
+                iconElement.textContent = 'check_circle'; // Material Icons 체크 아이콘
             }
-        } else {
-            if (successMessageElement) {
-                successMessageElement.style.display = 'none';
+        } else if (!isValid) { // 유효성 검사 실패 시 (값이 없거나 규칙 위반)
+            input.classList.add('is-invalid');
+            if (errorSpan) errorSpan.textContent = errorMessage;
+            if (iconElement) {
+                iconElement.classList.add('invalid');
+                iconElement.textContent = 'cancel'; // Material Icons X 아이콘
+            }
+        } else { // 값이 없고 required도 아닐 때 (선택 사항 필드가 비어있을 경우)
+            // 이 경우엔 유효성 검사 실패도 아니고, 유효하다고 표시할 필요도 없으므로 초기 상태로 유지
+            input.classList.remove('is-valid', 'is-invalid');
+            if (errorSpan) errorSpan.textContent = '';
+            if (iconElement) {
+                iconElement.classList.remove('valid', 'invalid');
+                iconElement.textContent = '';
             }
         }
-    });
+        return isValid;
+    }
+
+
+    // 모달 관련 함수
+    function showModal(errors) {
+        modalErrorList.innerHTML = ''; // 기존 오류 목록 지우기
+        if (errors && errors.length > 0) {
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.textContent = error;
+                modalErrorList.appendChild(li);
+            });
+            modal.style.display = 'flex'; // flex로 설정하여 중앙 정렬 활성화
+        }
+    }
+
+    function closeModal() {
+        modal.style.display = 'none'; // 모달 숨김
+        // 모달 닫을 때 모든 필드의 유효성 상태 초기화 (선택 사항)
+        inputs.forEach(input => {
+            input.classList.remove('is-valid', 'is-invalid');
+            const errorSpan = document.getElementById(input.id + '-error');
+            if (errorSpan) errorSpan.textContent = '';
+            const iconElement = document.getElementById(input.id + '-icon');
+            if (iconElement) {
+                iconElement.classList.remove('valid', 'invalid');
+                iconElement.textContent = '';
+            }
+        });
+    }
+
+    // 성공 모달 관련 함수
+    function showSuccessModal() {
+        successModal.style.display = 'flex';
+    }
+
+    // 성공 모달 닫기 버튼은 location.href로 이동하므로 별도 closeModal 함수는 필요 없음
 </script>
 </body>
 </html>

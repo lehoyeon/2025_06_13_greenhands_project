@@ -82,3 +82,119 @@ input::placeholder {
 .error-message {
     color: #ff6347;
 }
+/* 유효성 검사 피드백 스타일 */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    position: relative; /* 아이콘 배치를 위해 */
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    /* 기존 스타일 유지 */
+    border: 1px solid #555; /* 기본 테두리 */
+}
+
+/* 유효성 검사 성공 시 */
+input.is-valid {
+    border-color: #4CAF50; /* 초록색 테두리 */
+}
+/* 유효성 검사 실패 시 */
+input.is-invalid {
+    border-color: #f44336; /* 빨간색 테두리 */
+}
+
+/* 개별 필드 에러 메시지 */
+.field-error-message {
+    color: #f44336;
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: block; /* 줄 바꿈 */
+}
+
+/* 유효성 상태 아이콘 (선택 사항, 필요 시 Material Icons 사용) */
+.validation-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%; /* label 높이 고려 */
+    transform: translateY(-50%);
+    font-size: 1.2em;
+}
+.validation-icon.valid {
+    color: #4CAF50;
+}
+.validation-icon.invalid {
+    color: #f44336;
+}
+
+/* 팝업 모달 스타일 */
+.modal {
+    display: none; /* 기본 숨김 */
+    position: fixed; /* 화면 전체를 덮음 */
+    z-index: 1000; /* 다른 요소 위에 표시 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7); /* 반투명 배경 */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #444; /* 모달 배경색 */
+    margin: auto;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 80%;
+    max-width: 500px;
+    color: #f0f0f0;
+    text-align: left;
+}
+
+.modal-header {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #f44336; /* 빨간색 */
+    border-bottom: 1px solid #666;
+    padding-bottom: 10px;
+}
+
+.modal-body ul {
+    list-style-type: disc; /* 점 목록 */
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+.modal-body ul li {
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.modal-footer {
+    margin-top: 30px;
+    text-align: right;
+}
+
+.close-button {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.close-button:hover {
+    background-color: #5a6268;
+}
+
+/* 기존 에러/성공 메시지 (팝업으로 대체될 것이므로 숨김) */
+p.message.error-message, p.message.success-message {
+    display: none !important; /* 팝업으로 대체되므로 강제로 숨김 */
+}

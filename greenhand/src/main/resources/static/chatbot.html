@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 챗봇 상담</title>
+    <link rel="stylesheet" href="/static/style.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 스타일은 기존 style.css에서 가져오고, 챗봇 관련 스타일만 여기에 임시로 정의 */
+        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
+        .app-container { max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); overflow: hidden; display: flex; flex-direction: column; width: 100%; }
+        .header { background-color: #4CAF50; color: white; padding: 15px 20px; text-align: center; font-size: 24px; font-weight: 700; }
+        .nav-bar { background-color: #f2f2f2; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .nav-bar a { color: #333; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background-color 0.3s; font-weight: 500; }
+        .nav-bar a:hover { background-color: #e2e2e2; }
+        .nav-bar a.active { background-color: #4CAF50; color: white; }
+        .hamburger-icon { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; }
+        .nav-links-container { display: flex; gap: 10px; }
+        .main-content-panel { padding: 20px; background-color: #f8f8f8; flex-grow: 1; }
+        .card { background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); margin-bottom: 20px; overflow: hidden; }
+        .card-header { background-color: #8BC34A; color: white; padding: 15px 20px; font-size: 18px; font-weight: 700; }
+        .card-content { padding: 20px; }
+
+        /* 챗봇 스타일 */
+        #chat-history { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fcfcfc; display: flex; flex-direction: column; }
+        .chat-message { display: flex; margin-bottom: 10px; align-items: flex-end; }
+        .chat-message.user { justify-content: flex-end; }
+        .chat-message.bot { justify-content: flex-start; }
+        .message-bubble { padding: 10px 15px; border-radius: 18px; max-width: 70%; line-height: 1.4; word-wrap: break-word; }
+        .chat-message.user .message-bubble { background-color: #DCF8C6; color: #333; border-bottom-right-radius: 2px; }
+        .chat-message.bot .message-bubble { background-color: #E2E2E2; color: #333; border-bottom-left-radius: 2px; }
+        .message-info { font-size: 12px; color: #888; margin-bottom: 4px; display: flex; align-items: center; }
+        .chat-message.user .message-info { justify-content: flex-end; margin-right: 10px; }
+        .chat-message.bot .message-info { justify-content: flex-start; margin-left: 10px; }
+        .message-sender { font-weight: bold; margin-right: 5px; }
+        .chat-input-container { display: flex; gap: 10px; margin-top: 20px; }
+        #chat-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 16px; }
+        #send-chat-message { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
+        #send-chat-message:hover { background-color: #45a049; }
+        .btn { background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
+        .btn:hover { background-color: #1e88e5; }
+
+        /* 고급 기능 (링크, 파일 다운로드) 스타일 */
+        /* .message-bubble a { color: #007bff; text-decoration: underline; cursor: pointer; } */ /* 이제 FastAPI에서 직접 링크 클래스를 추가하므로 이 부분은 필요 없을 수 있음 */
+        .link-button { /* FastAPI에서 생성된 링크 버튼 스타일 */
+            display: inline-block;
+            padding: 5px 10px;
+            margin-top: 5px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .link-button:hover { background-color: #0056b3; }
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .download-link:hover { background-color: #0056b3; }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .nav-links-container { flex-direction: column; width: 100%; display: none; }
+            .nav-bar { flex-wrap: wrap; }
+            .hamburger-icon { display: block; }
+            .nav-links-container.active { display: flex; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="main.html">내 농장</a>
+            <a href="1.html">작물 추가</a>
+            <a href="2.html">작물 추천</a>
+            <a href="3.html">재배 가이드</a>
+            <a href="4.html">작물 진단</a>
+            <a href="5.html">문제 해결</a>
+            <a href="chatbot.html">챗봇 상담</a>
+            <a href="7.html">환경 모니터링</a>
+            <a href="8.html">수경 모니터링</a>
+        </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="chatbot-panel">
+            <div class="card">
+                <div class="card-header">💬 AI 챗봇 농업 상담 💬</div>
+                <div class="card-content">
+                    <div id="chat-history">
+                        <div class="chat-message bot">
+                            <div class="message-info">
+                                <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[<span class="current-time"></span>]</span>
+                            </div>
+                            <div class="message-bubble">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="메시지 입력...">
+                        <button id="send-chat-message">전송</button>
+                    </div>
+                    <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script src="/static/script.js"></script>
+<script>
+    // 햄버거 메뉴 토글 기능 (기존 코드 유지)
+    function toggleNavMenu() {
+        const navLinksContainer = document.getElementById('navLinksContainer');
+        navLinksContainer.classList.toggle('active');
+    }
+
+    // 페이지 로드 시, nav-bar의 '챗봇 상담' 링크를 활성화
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentPath = window.location.pathname.split('/').pop();
+        const navLinks = document.querySelectorAll('.nav-bar a');
+        navLinks.forEach(link => {
+            const linkPath = link.getAttribute('href').split('/').pop(); // href에서 파일명만 추출
+            if (linkPath === currentPath) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+
+        // 초기 챗봇 환영 메시지의 시간 설정
+        document.querySelector('.current-time').textContent = getCurrentTime();
+
+        // 챗봇 관련 이벤트 리스너 바인딩
+        const sendButton = document.getElementById('send-chat-message');
+        const chatInput = document.getElementById('chat-input');
+        if (sendButton && chatInput) {
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                    e.preventDefault(); // Enter 키 입력 시 줄 바꿈 방지
+                }
+            });
+        }
+    });
+
+    // 현재 시간 가져오는 함수
+    function getCurrentTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    // 메시지를 채팅 기록에 추가하는 함수
+    function addMessageToChat(sender, messageHtmlContent, isUser = false) {
+        const chatHistory = document.getElementById('chat-history');
+        const messageClass = isUser ? 'user' : 'bot';
+        const senderName = isUser ? '나' : 'AgroBuddy 챗봇';
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${messageClass}`;
+        messageDiv.innerHTML = `
+            <div class="message-info">
+                <span class="message-sender">${senderName}</span>
+                <span class="message-time">[${getCurrentTime()}]</span>
+            </div>
+            <div class="message-bubble">${messageHtmlContent}</div>
+        `;
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight; // 스크롤을 맨 아래로
+    }
+
+    // 챗봇 API로 메시지를 전송하고 응답을 받는 함수
+    async function sendMessage() {
+        const chatInput = document.getElementById('chat-input');
+        const userMessage = chatInput.value.trim();
+
+        if (userMessage === "") {
+            return; // 빈 메시지는 전송하지 않음
+        }
+
+        addMessageToChat('user', userMessage, true); // 사용자 메시지 표시
+        chatInput.value = ''; // 입력 필드 초기화
+
+        // 로딩 메시지 표시
+        const loadingMessageDiv = document.createElement('div');
+        loadingMessageDiv.className = 'chat-message bot';
+        loadingMessageDiv.innerHTML = `
+            <div class="message-info">
+                <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[${getCurrentTime()}]</span>
+            </div>
+            <div class="message-bubble">...</div>
+        `;
+        document.getElementById('chat-history').appendChild(loadingMessageDiv);
+        document.getElementById('chat-history').scrollTop = document.getElementById('chat-history').scrollHeight;
+
+        try {
+            // FastAPI 챗봇 API 호출
+            // user_id는 현재 하드코딩된 1을 보냅니다. 실제 구현에서는 로그인된 사용자의 ID를 사용해야 합니다.
+            const response = await fetch('http://localhost:8000/chatbot/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_query: userMessage, user_id: 1 }), // user_id 필드 추가
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`API 오류: ${errorData.detail || response.statusText}`);
+            }
+
+            const data = await response.json(); // 챗봇 응답 데이터 (response, file_path 포함)
+            let botResponseContent = data.response; // 기본 응답 텍스트 (이제 HTML이 포함될 수 있음)
+
+            // 파일 다운로드 링크 처리 (FastAPI에서 HTML로 변환하지 않으므로 여기서 추가)
+            let additionalElementsHtml = '';
+            if (data.file_path) {
+                const fileName = data.file_path.split('/').pop(); // 파일명만 추출
+                const downloadUrl = `http://localhost:8000/files/${data.file_path}`; // FastAPI의 파일 다운로드 API 엔드포인트
+                additionalElementsHtml += `<br><a href="${downloadUrl}" download="${fileName}" class="download-link">${fileName} 다운로드</a>`;
+            }
+
+            loadingMessageDiv.remove(); // 로딩 메시지 제거
+            // 챗봇 응답과 추가 HTML 요소들을 함께 표시 (botResponseContent는 이미 HTML일 수 있음)
+            addMessageToChat('bot', botResponseContent + additionalElementsHtml);
+
+
+        } catch (error) {
+            console.error("챗봇 API 호출 중 오류 발생:", error);
+            loadingMessageDiv.remove(); // 로딩 메시지 제거
+            addMessageToChat('bot', `죄송합니다. 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+</script>
+</body>
+</html>

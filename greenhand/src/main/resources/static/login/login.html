@@ -3,54 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroBuddy 로그인</title>
+    <title>로그인</title>
     <link rel="stylesheet" href="/css/login/login-style.css">
-    <style>
-        /* 모달 스타일 (기존 그대로) */
-        .modal {
-          display: none;
-          position: fixed;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.5);
-          justify-content: center;
-          align-items: center;
-          z-index: 1000;
-        }
-        .modal-content {
-          background: #fff;
-          padding: 1.5rem;
-          border-radius: 8px;
-          width: 90%;
-          max-width: 400px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .modal-header { font-size: 1.2rem; margin-bottom: 1rem; }
-        .modal-footer { text-align: right; margin-top: 1rem; }
-        .modal-footer button {
-          padding: 0.5rem 1rem; border: none;
-          background: #4CAF50; color: #fff;
-          border-radius: 4px; cursor: pointer;
-        }
-        .btn-find {
-          margin: 0.5rem 0;
-          width: 100%; padding: 0.75rem;
-          font-size: 1rem; border: none;
-          background: #2196F3; color: white;
-          border-radius: 4px; cursor: pointer;
-        }
-        .social-login {
-          margin: 0.5rem 0;
-          width: 100%; padding: 0.75rem;
-          font-size: 1rem; border: none;
-          background: #FEE500; color: #000;
-          border-radius: 4px; cursor: pointer;
-        }
-        .social-login img { vertical-align: middle; margin-right: 0.5rem; }
-    </style>
 </head>
 <body>
 <div class="login-container">
-    <h1>AgroBuddy 로그인</h1>
+    <h1>로그인</h1>
     <form action="/do-login" method="post">
         <div class="form-group">
             <label for="username">사용자 이름</label>
@@ -63,112 +21,238 @@
         <button type="submit" class="btn-login">로그인</button>
     </form>
 
-    <!-- 카카오 소셜 로그인 버튼 -->
-    <button class="social-login" onclick="window.location.href='/oauth2/authorization/kakao'">
-        <img src="/images/kakao-icon.png" alt="Kakao">카카오 계정으로 로그인
+    <p class="separator">또는</p>
+
+    <button class="btn-social kakao" onclick="window.location.href='/oauth2/authorization/kakao'">
+        Kakao 로그인
     </button>
 
-    <!-- 아이디/비밀번호 찾기 버튼 -->
-    <button class="btn-find" onclick="openModal('findIdModal')">아이디 찾기</button>
-    <button class="btn-find" onclick="openModal('findPwModal')">비밀번호 찾기</button>
-
     <a href="/login/signup.html" class="btn-register">회원가입</a>
+    <button id="openFindAccountModal" class="btn-find-main">아이디/비밀번호 찾기</button>
 </div>
 
-<!-- 아이디 찾기 모달 -->
-<div class="modal" id="findIdModal">
+<div class="error-message" id="login-error-message" style="display: none;">
+    아이디 또는 비밀번호가 잘못되었습니다.
+</div>
+<div class="success-message" id="logout-success-message" style="display: none;">
+    로그아웃 되었습니다.
+</div>
+<div class="success-message" id="signup-success-message" style="display: none;">
+    회원가입이 완료되었습니다. 로그인해주세요.
+</div>
+
+<div id="findAccountModal" class="modal">
     <div class="modal-content">
-        <div class="modal-header">아이디 찾기</div>
+        <div class="modal-header">
+            아이디/비밀번호 찾기
+            <button class="close-modal-x-button" onclick="closeFindAccountModal()">&times;</button> </div>
         <div class="modal-body">
-            <label for="find-email">등록된 이메일</label>
-            <input type="email" id="find-email" placeholder="이메일을 입력하세요" style="width:100%; padding:0.5rem; margin-bottom:0.5rem;">
-            <label for="find-phone">등록된 전화번호</label>
-            <input type="text" id="find-phone" placeholder="전화번호를 입력하세요" style="width:100%; padding:0.5rem;">
-        </div>
-        <div class="modal-footer">
-            <button onclick="submitFindId()">확인</button>
+            <div class="section-toggle">
+                <button id="findIdTab" class="active">아이디 찾기</button>
+                <button id="resetPwTab">비밀번호 찾기</button>
+            </div>
+
+            <div id="findIdSection" class="find-section active">
+                <form id="findIdForm">
+                    <div class="form-group">
+                        <label for="findIdEmail">등록된 이메일</label>
+                        <input type="email" id="findIdEmail" name="email" placeholder="가입 시 등록한 이메일 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="findIdPhoneNumber">등록된 전화번호</label>
+                        <input type="text" id="findIdPhoneNumber" name="phoneNumber" placeholder="등록된 전화번호 입력 (하이픈 없이)" required>
+                    </div>
+                    <button type="submit" class="btn-find">아이디 찾기</button>
+                    <div id="findIdResult" class="result-message" style="display: none;"></div>
+                </form>
+            </div>
+
+            <div id="resetPwSection" class="find-section">
+                <form id="resetPwForm">
+                    <div class="form-group">
+                        <label for="resetPwUsername">아이디</label>
+                        <input type="text" id="resetPwUsername" name="username" placeholder="아이디 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetPwPhoneNumber">등록된 전화번호</label>
+                        <input type="text" id="resetPwPhoneNumber" name="phoneNumber" placeholder="등록된 전화번호 입력 (하이픈 없이)" required>
+                    </div>
+                    <button type="submit" class="btn-find">비밀번호 재설정</button>
+                    <div id="resetPwResult" class="result-message" style="display: none;"></div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- 비밀번호 찾기 모달 -->
-<div class="modal" id="findPwModal">
-    <div class="modal-content">
-        <div class="modal-header">비밀번호 찾기</div>
-        <div class="modal-body">
-            <label for="find-userid">아이디</label>
-            <input type="text" id="find-userid" placeholder="아이디를 입력하세요" style="width:100%; padding:0.5rem; margin-bottom:0.5rem;">
-            <label for="find-phone-pw">등록된 전화번호</label>
-            <input type="text" id="find-phone-pw" placeholder="전화번호를 입력하세요" style="width:100%; padding:0.5rem;">
-        </div>
-        <div class="modal-footer">
-            <button onclick="submitFindPw()">확인</button>
-        </div>
-    </div>
-</div>
 
 <script>
-    function openModal(id) {
-      document.getElementById(id).style.display = 'flex';
-    }
-    function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
 
-    // 아이디 찾기 제출: 이메일 or 전화번호 중 하나라도 입력되면 서버로 전송
-    function submitFindId() {
-      const email = document.getElementById('find-email').value.trim();
-      const phone = document.getElementById('find-phone').value.trim();
-      const params = new URLSearchParams();
-      if (email) params.append('email', email);
-      if (phone) params.append('phone', phone);
-      fetch('/user/find-id', {
-        method: 'POST',
-        headers: {'Content-Type':'application/x-www-form-urlencoded'},
-        body: params.toString()
-      })
-      .then(res => res.ok ? res.text() : Promise.reject('등록된 정보가 없습니다.'))
-      .then(id => {
-        alert('회원님의 아이디: ' + id);
-        closeModal('findIdModal');
-      })
-      .catch(msg => alert(msg));
-    }
+        // 로그인/로그아웃/회원가입 성공 메시지 표시 로직
+        const errorMessage = document.getElementById('login-error-message');
+        const logoutMessage = document.getElementById('logout-success-message');
+        const signupMessage = document.getElementById('signup-success-message');
 
-    // 비밀번호 찾기 제출: 아이디 + 전화번호
-    function submitFindPw() {
-      const userId = document.getElementById('find-userid').value.trim();
-      const phone = document.getElementById('find-phone-pw').value.trim();
-      if (!userId || !phone) {
-        alert('아이디와 전화번호를 모두 입력하세요.');
-        return;
-      }
-      const params = new URLSearchParams();
-      params.append('userId', userId);
-      params.append('phone', phone);
-      fetch('/user/find-password', {
-        method: 'POST',
-        headers: {'Content-Type':'application/x-www-form-urlencoded'},
-        body: params.toString()
-      })
-      .then(res => {
-        if (res.ok) {
-          alert('검증되었습니다. 비밀번호 재설정 페이지로 이동합니다.');
-          window.location.href = `/reset-password?userId=${encodeURIComponent(userId)}`;
+        if (params.has('error')) {
+            if (errorMessage) errorMessage.style.display = 'block';
         } else {
-          return res.text().then(text => Promise.reject(text));
+            if (errorMessage) errorMessage.style.display = 'none';
         }
-      })
-      .catch(msg => alert(msg));
-    }
 
-    // 모달 외부 클릭 시 닫기
-    window.onclick = e => {
-      ['findIdModal','findPwModal'].forEach(id => {
-        const m = document.getElementById(id);
-        if (e.target === m) closeModal(id);
-      });
-    };
+        if (params.has('logout')) {
+            if (logoutMessage) logoutMessage.style.display = 'block';
+        } else {
+            if (logoutMessage) logoutMessage.style.display = 'none';
+        }
+
+        if (params.has('signupSuccess')) {
+            if (signupMessage) {
+                signupMessage.style.display = 'block';
+            } else {
+                // 메시지 요소가 없으면 alert 사용
+                alert("✅ 회원가입이 성공적으로 완료되었습니다!");
+            }
+        }
+
+        // URL 파라미터 정리 (팝업 재표시 방지)
+        const newUrl = new URL(window.location.href);
+        ['error', 'logout', 'signupSuccess'].forEach(p => newUrl.searchParams.delete(p));
+        window.history.replaceState({}, document.title, newUrl.toString());
+
+        // ========================================
+        // 아이디/비밀번호 찾기 모달 관련 JavaScript
+        // ========================================
+        const openFindAccountModalBtn = document.getElementById('openFindAccountModal');
+        const findAccountModal = document.getElementById('findAccountModal');
+        const findIdTab = document.getElementById('findIdTab');
+        const resetPwTab = document.getElementById('resetPwTab');
+        const findIdSection = document.getElementById('findIdSection');
+        const resetPwSection = document.getElementById('resetPwSection');
+        const findIdForm = document.getElementById('findIdForm');
+        const resetPwForm = document.getElementById('resetPwForm');
+        const findIdResult = document.getElementById('findIdResult');
+        const resetPwResult = document.getElementById('resetPwResult');
+
+        if (openFindAccountModalBtn) {
+            openFindAccountModalBtn.addEventListener('click', function (event) {
+                event.preventDefault();
+                findAccountModal.style.display = 'flex';
+                findIdTab.click();
+            });
+        }
+
+        window.closeFindAccountModal = function () {
+            findAccountModal.style.display = 'none';
+            findIdResult.style.display = 'none';
+            resetPwResult.style.display = 'none';
+            findIdForm.reset();
+            resetPwForm.reset();
+        }
+
+        window.addEventListener('click', function (event) {
+            if (event.target == findAccountModal) {
+                closeFindAccountModal();
+            }
+        });
+
+        findIdTab.addEventListener('click', () => {
+            findIdTab.classList.add('active');
+            resetPwTab.classList.remove('active');
+            findIdSection.classList.add('active');
+            resetPwSection.classList.remove('active');
+            findIdResult.style.display = 'none';
+            resetPwResult.style.display = 'none';
+            findIdForm.reset();
+        });
+
+        resetPwTab.addEventListener('click', () => {
+            resetPwTab.classList.add('active');
+            findIdTab.classList.remove('active');
+            findIdSection.classList.remove('active');
+            resetPwSection.classList.add('active');
+            findIdResult.style.display = 'none';
+            resetPwResult.style.display = 'none';
+            resetPwForm.reset();
+        });
+
+        findIdForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            findIdResult.style.display = 'none';
+
+            const email = document.getElementById('findIdEmail').value.trim();
+            const phoneNumber = document.getElementById('findIdPhoneNumber').value.trim().replace(/-/g, '');
+
+            if (!email || !phoneNumber) {
+                displayResult(findIdResult, "이메일과 전화번호를 모두 입력해주세요.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/find-id', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, phoneNumber })
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (response.ok && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    displayResult(findIdResult, `찾으시는 아이디: ${data.username}`, 'success');
+                } else {
+                    const errorText = await response.text();
+                    displayResult(findIdResult, "아이디 찾기 실패: " + errorText, 'error');
+                }
+            } catch (error) {
+                console.error('아이디 찾기 네트워크 오류:', error);
+                displayResult(findIdResult, "네트워크 오류가 발생했습니다.", 'error');
+            }
+        });
+
+        resetPwForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            resetPwResult.style.display = 'none';
+
+            const username = document.getElementById('resetPwUsername').value.trim();
+            const phoneNumber = document.getElementById('resetPwPhoneNumber').value.trim().replace(/-/g, '');
+
+            if (!username || !phoneNumber) {
+                displayResult(resetPwResult, "아이디와 전화번호를 모두 입력해주세요.", 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, phoneNumber })
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+
+                if (response.ok && contentType.includes("application/json")) {
+                    const data = await response.json();
+                    displayResult(resetPwResult, data.message, 'success');
+                } else {
+                    const errorText = await response.text();
+                    displayResult(resetPwResult, "비밀번호 재설정 실패: " + errorText, 'error');
+                }
+            } catch (error) {
+                console.error('비밀번호 재설정 네트워크 오류:', error);
+                displayResult(resetPwResult, "네트워크 오류가 발생했습니다.", 'error');
+            }
+        });
+
+        function displayResult(element, message, type) {
+            element.textContent = message;
+            element.classList.remove('success', 'error');
+            element.classList.add(type);
+            element.style.display = 'block';
+        }
+    });
 </script>
+
 </body>
 </html>

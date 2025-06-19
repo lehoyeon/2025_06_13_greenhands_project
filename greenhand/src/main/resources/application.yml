@@ -38,3 +38,7 @@ spring:
 server:
   tomcat:
     uri-encoding: UTF-8
+logging:
+  level:
+    org.springframework.security: DEBUG # Spring Security 로깅 레벨을 DEBUG로 설정
+    org.springframework.web: DEBUG
