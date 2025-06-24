@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 진단 결과</title>
+    <link rel="stylesheet" href="/css/style.css"> <link rel="stylesheet" href="/css/img/img_results.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="/login/login.html">로그인</a> <a href="/login/signup.html">회원가입</a> <a href="/main.html">내 농장</a> <a href="/1.html">작물 추가</a> <a href="/2.html">작물 추천</a> <a href="/3.html">재배 가이드</a> <a href="/img/img.html">작물 진단</a> <a href="/5.html">문제 해결</a> <a href="/chatbot.html">챗봇 상담</a> <a href="/7.html">환경 모니터링</a> <a href="/8.html">실내 농장</a> </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="diagnosis-result-panel">
+            <div class="result-detail-card">
+                <div class="card-header">🔍 진단 결과 및 해결 방안 제시 💡</div>
+                <div class="card-content">
+                    <div class="image-uploaded-container">
+                        <p>업로드된 이미지:</p>
+                        <img id="uploadedResultImage" class="uploaded-result-image" src="#" alt="업로드된 이미지">
+                    </div>
+
+                    <h3>진단 결과: <span id="resultDiseaseName">진단 중...</span></h3>
+                    <p>예측된 질병: <strong id="predictedDiseaseResult">N/A</strong></p>
+                    <p>확신도: <strong id="confidenceScoreResult">N/A</strong></p>
+                    <div class="confidence-bar-container">
+                        <div class="confidence-bar" id="confidenceProgressBarResult"></div>
+                    </div>
+
+                    <div id="solutionDetails" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #555;">
+                        <h4>💡 해결 방안:</h4>
+                        <div id="solutionContent">
+                            <p>진단 결과에 따른 해결 방안이 여기에 표시됩니다.</p>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <button class="btn-action secondary" onclick="window.location.href='/img/img.html'">다시 진단하기</button>
+                        <button class="btn-action" onclick="window.location.href='/main.html'">내 농장으로 돌아가기</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="/js/img/img_results.js"></script> </body>
+</html>

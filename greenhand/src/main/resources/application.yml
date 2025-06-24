@@ -1,4 +1,5 @@
 spring:
+  # OAuth2, DataSource, JPA 설정은 변경 없음. 그대로 유지
   security:
     oauth2:
       client:
@@ -34,6 +35,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MariaDBDialect
+
+  # === 추가/수정될 Thymeleaf 설정 부분 ===
+  thymeleaf:
+    prefix: classpath:/chatbot/ # <-- 이제 템플릿 파일을 src/main/resources/chatbot/ 에서 찾습니다.
+    suffix: .html
+    cache: false # 개발 중에는 캐시 비활성화 (변경사항 즉시 반영)
+    mode: HTML # HTML5 모드 (기본값)
+  # ==================================
 
 server:
   tomcat:

@@ -1,6 +1,6 @@
 // src/main/java/com/grrenhand/greenhand/login/config/SecurityConfig.java
 
-package com.grrenhand.greenhand.login.config;
+package com.grrenhand.greenhand.login.config; // grrenhand 오타 유지
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,15 +15,16 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+// RestTemplate 임포트 추가
+import org.springframework.web.client.RestTemplate; // <-- 추가
+
 
 @Configuration // 이 클래스가 스프링 설정 클래스임을 명시
 @EnableWebSecurity // 스프링 시큐리티 활성화
 public class SecurityConfig {
 
-    // CustomOAuth2UserService를 주입받아 사용 (Spring이 @Service 어노테이션이 붙은 CustomOAuth2UserService 빈을 찾아 자동으로 주입해줍니다.)
     private final OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService;
 
-    // 생성자에 customOAuth2UserService를 주입받습니다.
     public SecurityConfig(OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService) {
         this.customOAuth2UserService = customOAuth2UserService;
     }
@@ -41,10 +42,12 @@ public class SecurityConfig {
                                 "/login/login.html", // login.html 페이지 허용
                                 "/login/signup.html",// signup.html 페이지 허용
                                 "/register",         // 회원가입 요청 처리 URL 허용
-                                "/oauth2/**",        // OAuth2 로그인 관련 URL 허용
-                                "/api/**"           // 모든 /api/ 경로 허용 (더 넓은 범위)
+                                "/oauth2/**",        // OAuth2 로그인 관련 URL 허용 (카카오 로그인 흐름에 필요)
+                                "/api/find-id",      // 아이디 찾기 API 허용
+                                "/api/reset-password"// 비밀번호 재설정 API 허용
+                                // 중요: "/api/**"는 제거하고, 보호될 API는 anyRequest().authenticated()로 보호합니다.
                         ).permitAll() // 위의 경로들은 인증 없이 접근 허용
-                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
+                        .anyRequest().authenticated() // <-- /api/main/user/me, /api/main/diagnose 등은 여기에서 보호됩니다.
                 )
                 .formLogin(form -> form
                         .loginPage("/login/login.html") // 커스텀 로그인 페이지 URL (static/login/login.html)
@@ -81,7 +84,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // CustomUserDetailsService 구현체는 별도로 @Service 어노테이션으로 등록됩니다. (CustomUserDetailsService.java)
-    // CustomOAuth2UserService 구현체도 별도로 @Service 어노테이션으로 등록됩니다. (CustomOAuth2UserService.java)
-    // Spring은 @Service가 붙은 클래스를 자동으로 빈으로 찾아 주입합니다.
+    // RestTemplate 빈 등록 (HTTP 통신용) - ImgController에서 사용하므로 필수!
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 }
