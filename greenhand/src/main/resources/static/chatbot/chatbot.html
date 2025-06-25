@@ -36,13 +36,17 @@
                     <div id="chat-history">
                         <div class="chat-message bot">
                             <div class="message-info">
-                                <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[<span class="current-time"></span>]</span>
+                                <span class="message-sender">초록손</span> <span class="message-time">[<span class="current-time"></span>]</span>
                             </div>
                             <div class="message-bubble" id="initial-chatbot-greeting">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
                         </div>
                     </div>
                     <div class="chat-input-container">
                         <input type="text" id="chat-input" placeholder="메시지 입력...">
+                        <button id="upload-image-button" class="icon-button">
+                            <i class="material-icons">add_photo_alternate</i>
+                        </button>
+                        <input type="file" id="image-upload-input" name="imageFile" accept="image/*" style="display: none;">
                         <button id="send-chat-message">전송</button>
                     </div>
                     <button class="btn" style="width: 100%; margin-top: 10px;" id="show-history-button">이전 질문 내역 확인</button>

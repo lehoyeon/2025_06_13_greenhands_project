@@ -26,10 +26,48 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
 .chat-message.user .message-info { justify-content: flex-end; margin-right: 10px; }
 .chat-message.bot .message-info { justify-content: flex-start; margin-left: 10px; }
 .message-sender { font-weight: bold; margin-right: 5px; }
-.chat-input-container { display: flex; gap: 10px; margin-top: 20px; }
+
+.chat-input-container { /* 기존 스타일 */
+    display: flex;
+    gap: 10px; /* 기존 간격 유지 */
+    margin-top: 20px;
+    align-items: center; /* 추가: 세로 중앙 정렬 */
+}
 #chat-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 16px; }
 #send-chat-message { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
 #send-chat-message:hover { background-color: #45a049; }
+
+/* --- 이미지 업로드 버튼 스타일 추가 --- */
+.icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #4CAF50; /* 아이콘 색상 */
+    font-size: 24px; /* 아이콘 크기 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* 원형 버튼 */
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
+}
+
+.icon-button:hover {
+    background-color: #e0e0e0;
+}
+
+/* 챗봇 메시지에 포함된 이미지 스타일 */
+.chat-message .message-bubble img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 5px; /* 이미지와 텍스트 간의 간격 */
+    display: block; /* 이미지 하단 여백 제거 */
+}
+/* --- /이미지 업로드 버튼 스타일 추가 --- */
+
+
 .btn { background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
 .btn:hover { background-color: #1e88e5; }
 
@@ -63,6 +101,10 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
     .nav-bar { flex-wrap: wrap; }
     .hamburger-icon { display: block; }
     .nav-links-container.active { display: flex; }
+    .chat-input-container { flex-wrap: wrap; } /* 모바일에서 입력창과 버튼이 줄바꿈되도록 */
+    #chat-input { margin-bottom: 10px; width: 100%; } /* 입력창이 한 줄을 차지하도록 */
+    .icon-button, #send-chat-message { width: calc(50% - 5px); /* 버튼들이 반반씩 차지하도록 */ margin-top: 0; }
+    .icon-button { margin-right: 0; } /* 간격 조정 */
 }
 
 /* 이전 질문 내역 모달 스타일 */
