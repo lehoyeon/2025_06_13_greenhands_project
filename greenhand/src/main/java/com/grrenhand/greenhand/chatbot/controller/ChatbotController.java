@@ -1,21 +1,19 @@
 package com.grrenhand.greenhand.chatbot.controller;
 
+// 필요한 임포트들은 그대로 유지
+
 import com.grrenhand.greenhand.login.domain.User;
 import com.grrenhand.greenhand.login.service.UserService;
 import com.grrenhand.greenhand.login.config.CustomUser; // CustomUser 임포트
-
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Controller; // ### @RestController 대신 @Controller 사용 ###
+import org.springframework.stereotype.Controller; // @Controller 유지 (필요하다면)
 import org.springframework.ui.Model; // Model 임포트
-import org.springframework.web.bind.annotation.GetMapping; // GET 매핑 임포트
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -25,9 +23,10 @@ import java.util.Optional;
 import com.grrenhand.greenhand.chatbot.dto.ChatbotRequestDTO;
 
 
-// ### @RestController 대신 @Controller 사용 ###
-@Controller // 이 컨트롤러는 뷰(HTML)를 반환할 수 있습니다.
-@RequestMapping // 최상위 경로 설정 (필요에 따라 /api/chatbot 등으로 나눌 수 있습니다)
+// 이 컨트롤러는 API 엔드포인트만 제공하는 것이 좋으므로 @RestController로 변경하거나,
+// HTML 서빙을 하지 않는다면 아예 @RequestMapping을 제거하고 특정 API에만 @RequestMapping을 붙이는 게 좋습니다.
+@RestController // API 컨트롤러로 변경하는 것을 강력히 권장
+@RequestMapping("/api/chatbot") // 챗봇 관련 API의 기본 경로를 /api/chatbot으로 설정
 public class ChatbotController {
 
     private final RestTemplate restTemplate;
@@ -38,48 +37,23 @@ public class ChatbotController {
         this.userService = userService;
     }
 
-    // 챗봇 HTML 페이지를 렌더링하는 엔드포인트
-    // URL: /chatbot.html (브라우저에서 직접 접근하는 URL)
+    // 챗봇 HTML 페이지를 렌더링하는 엔드포인트는 이 컨트롤러에서 제거합니다.
+    // /chatbot.html (또는 /chatbot/chatbot.html)은 정적 리소스로 Spring이 직접 서빙합니다.
+    // 따라서 이 @GetMapping("/chatbot.html") 메소드는 제거해야 합니다!
+    /*
     @GetMapping("/chatbot.html")
     public String getChatbotPage(Model model) {
-        Long userId = null;
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
-            Object principal = authentication.getPrincipal();
-
-            if (principal instanceof CustomUser) {
-                userId = ((CustomUser) principal).getUserId();
-                System.out.println("DEBUG: User ID from CustomUser (for HTML): " + userId);
-            } else if (principal instanceof OAuth2User) {
-                String oauth2Id = ((OAuth2User) principal).getName();
-                Optional<User> userOptional = userService.findByUsername(oauth2Id);
-                if (userOptional.isPresent()) {
-                    userId = userOptional.get().getUserId();
-                    System.out.println("DEBUG: OAuth2 User's actual userId from DB (for HTML): " + userId);
-                }
-            } else if (principal instanceof UserDetails) {
-                String username = ((UserDetails) principal).getUsername();
-                Optional<User> userOptional = userService.findByUsername(username);
-                if (userOptional.isPresent()) {
-                    userId = userOptional.get().getUserId();
-                    System.out.println("DEBUG: User ID from UserDetails (DB lookup for HTML): " + userId);
-                }
-            }
-        }
-
-        // user_id를 Thymeleaf 템플릿으로 전달합니다.
-        model.addAttribute("user_id", userId);
-
-        // "chatbot" 뷰를 반환합니다. 이는 src/main/resources/templates/chatbot.html을 찾습니다.
-        return "chatbot";
+        // 이 메소드 자체가 필요 없습니다.
+        // Spring이 resources/static/chatbot/chatbot.html을 직접 서빙할 것입니다.
+        // 만약 user_id를 HTML에 직접 심어야 한다면, Thymeleaf/JSP 같은 템플릿 엔진을 사용하거나
+        // JavaScript에서 /api/main/user/me를 호출하는 기존 방식을 사용해야 합니다.
+        return "chatbot"; // 이 뷰 이름을 반환하면 templates 폴더를 찾습니다.
     }
-
+    */
 
     // 챗봇에게 질문 보내기 API (이것은 기존 RestController와 동일하게 API 역할)
     // URL: /api/chatbot/ask (프론트엔드 JavaScript에서 fetch로 호출하는 URL)
-    @PostMapping("/api/chatbot/ask") // @RequestMapping이 /api/chatbot으로 설정되어 있지 않으므로, 전체 경로를 명시합니다.
+    @PostMapping("/ask") // @RequestMapping이 /api/chatbot으로 설정되었으므로, /ask만 붙이면 됩니다.
     public ResponseEntity<?> askChatbot(@RequestBody ChatbotRequestDTO requestDTO) {
         // 이 부분의 userId 가져오는 로직은 이전과 동일하게 유지됩니다.
         // Spring Security의 Principal에서 userId를 가져오는 로직은 이미 최적화되어 있습니다.
@@ -133,40 +107,49 @@ public class ChatbotController {
     }
 
     // 챗봇 이력 가져오기 API 엔드포인트
-    // URL: /api/chatbot/history (프론트엔드 JavaScript에서 fetch로 호출하는 URL)
-    @GetMapping("/api/chatbot/history") // @RequestMapping이 /api/chatbot으로 설정되어 있지 않으므로, 전체 경로를 명시합니다.
-    public ResponseEntity<?> getChatHistory() {
-        Long userId = null;
+    // URL: /api/chatbot/history/{userId} (프론트엔드 JavaScript에서 fetch로 호출하는 URL)
+    @GetMapping("/history/{userId}") // @RequestMapping이 /api/chatbot으로 설정되었으므로, /history/{userId}만 붙이면 됩니다.
+    public ResponseEntity<?> getChatHistory(@PathVariable Long userId) { // userId를 PathVariable로 받음
+        // 이 부분의 userId는 이미 PathVariable로 받았으므로, Principal에서 가져오는 로직은 불필요합니다.
+        // 하지만 보안을 위해 PathVariable로 받은 userId와 로그인된 유저의 userId가 일치하는지 확인하는 로직을 추가하는 것이 좋습니다.
+        Long authenticatedUserId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof CustomUser) {
-                userId = ((CustomUser) principal).getUserId();
+                authenticatedUserId = ((CustomUser) principal).getUserId();
             } else if (principal instanceof OAuth2User) {
                 String oauth2Id = ((OAuth2User) principal).getName();
                 Optional<User> userOptional = userService.findByUsername(oauth2Id);
                 if (userOptional.isPresent()) {
-                    userId = userOptional.get().getUserId();
+                    authenticatedUserId = userOptional.get().getUserId();
                 }
             } else if (principal instanceof UserDetails) {
                 String username = ((UserDetails) principal).getUsername();
                 Optional<User> userOptional = userService.findByUsername(username);
                 if (userOptional.isPresent()) {
-                    userId = userOptional.get().getUserId();
+                    authenticatedUserId = userOptional.get().getUserId();
                 }
             }
         }
 
-        if (userId == null) {
-            return new ResponseEntity<>(Map.of("message", "사용자 정보를 확인할 수 없어 채팅 기록을 불러올 수 없습니다. 다시 로그인해주세요."), HttpStatus.UNAUTHORIZED);
+        // 보안 검사: 요청된 userId와 현재 로그인된 userId가 다르면 접근 거부
+        if (authenticatedUserId == null || !authenticatedUserId.equals(userId)) {
+            return new ResponseEntity<>(Map.of("message", "접근 권한이 없습니다."), HttpStatus.FORBIDDEN);
         }
+
 
         try {
             String pythonChatbotHistoryUrl = "http://localhost:8000/chatbot/history/" + userId;
             System.out.println("DEBUG: Requesting chat history from Python for user_id: " + userId);
 
-            ResponseEntity<String[]> pythonResponse = restTemplate.getForEntity(pythonChatbotHistoryUrl, String[].class);
+            // FastAPI가 반환하는 응답이 String[] (질문 문자열 배열)일 수도 있고
+            // 또는 [{"user_query": "...", "timestamp": "..."}, ...] 같은 객체 배열일 수도 있습니다.
+            // 스크린샷에서 [object Object]가 떴었으므로, 객체 배열일 가능성이 큽니다.
+            // 따라서 Map[] 또는 List<Map<String, Object>> 등으로 받는 것이 안전합니다.
+            ResponseEntity<Object[]> pythonResponse = restTemplate.getForEntity(pythonChatbotHistoryUrl, Object[].class);
+
 
             if (pythonResponse.getStatusCode().is2xxSuccessful() && pythonResponse.getBody() != null) {
                 return new ResponseEntity<>(pythonResponse.getBody(), HttpStatus.OK);

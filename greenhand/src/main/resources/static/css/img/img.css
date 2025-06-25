@@ -45,10 +45,10 @@
 }
 .diagnosis-result-section p {
     margin-bottom: 8px;
-    color: #f0f0f0; /* 카드 텍스트 색상과 유사하게 */
+    color: #333; /* <-- #f0f0f0 에서 더 잘 보이게 검은색 계열로 변경 */
 }
 .diagnosis-result-section strong {
-    color: #FFF;
+    color: #000; /* <-- #FFF 에서 더 잘 보이게 검은색으로 변경 */
 }
 .diagnosis-result-section .confidence-bar-container {
     width: 100%;

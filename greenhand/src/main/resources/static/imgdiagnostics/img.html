@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 작물 진단</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/img/img.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="../main/main.html">내 농장</a>
+            <a href="../1.html">작물 추가</a>
+            <a href="../2.html">작물 추천</a>
+            <a href="../3.html">재배 가이드</a>
+            <a href="img.html">작물 진단</a> <a href="../5.html">문제 해결</a>
+            <a href="../chatbot/chatbot.html">챗봇 상담</a>
+            <a href="../7.html">환경 모니터링</a>
+            <a href="../8.html">실내 농장</a>
+        </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="diagnosis-panel">
+            <div class="card">
+                <div class="card-header">🌱 AI 작물 진단 🔎</div>
+                <div class="card-content">
+                    <p style="text-align: center; color: #555;">작물 잎 이미지를 업로드하고 진단하세요. (JPEG, PNG 권장)</p>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="input-group" style="margin-bottom: 20px;">
+                            <label for="imageUpload" style="display: none;">이미지 선택</label>
+                            <input type="file" id="imageUpload" name="file" accept="image/jpeg, image/png" required>
+                        </div>
+                        <div class="placeholder-box image-placeholder">
+                            <img id="imagePreview" class="image-preview" src="#" alt="이미지 미리보기">
+                            <span id="placeholderText">업로드된 이미지 미리보기 공간</span>
+                        </div>
+
+                        <div class="prompt-input-group" style="margin-top: 20px;">
+                            <label for="prompt-text" style="display: block; margin-bottom: 5px; color: #333; font-weight: bold;">AI에게 질문:</label>
+                            <textarea id="prompt-text" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;">이 식물 사진을 보고, 식물에 질병이 있는지 여부와 건강 상태를 알려주세요. 만약 질병이 있다면 어떤 질병으로 추정되며, 어떻게 관리해야 할지 간략하게 설명해주세요.</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-diagnose" style="margin-top: 20px;">진단 시작</button>
+                    </form>
+
+                    <div class="diagnosis-result-section" style="display:none;">
+                        <h2>진단 결과</h2>
+                        <p id="geminiResponseText" style="white-space: pre-wrap; color: #333;"></p>
+
+                        <p class="error-message-display" id="diagnosisError" style="display:none;"></p>
+
+                        <button class="btn btn-primary" id="viewDetailsBtn" style="margin-top: 20px; width: 100%; display:none;">자세한 진단 결과 확인</button>
+                    </div>
+
+                    <button class="btn btn-secondary" style="margin-top: 20px;" onclick="window.location.href='../main/main.html'">내 농장으로 돌아가기</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<script src="../js/main.js"></script>
+<script src="../js/img/img.js"></script>
+</body>
+</html>

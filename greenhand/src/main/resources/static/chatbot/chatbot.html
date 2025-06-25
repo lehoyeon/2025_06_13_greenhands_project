@@ -4,145 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>초록손 - 챗봇 상담</title>
-    <!-- 기존 style.css 경로 수정: /static/css/style.css 로 변경 -->
-    <link rel="stylesheet" href="/static/css/style.css">
-    <!-- Material Icons CDN -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <!-- Google Fonts: Noto Sans KR -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- 분리된 챗봇 전용 CSS 파일 (경로 올바름) -->
-    <link rel="stylesheet" href="/static/css/chatbot/chatbot.css">
 
-    <style>
-        /* HTML 파일 안에 인라인 스타일을 유지하시기로 하셨으므로 그대로 둡니다. */
-        /* 하지만 최종적으로는 이 스타일들을 chatbot.css로 옮기는 것이 좋습니다. */
-        /* 이 스타일들이 현재 적용되지 않는 것은 "RuntimeError: Directory 'resources/static' does not exist" 때문입니다. */
-        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
-        .app-container { max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); overflow: hidden; display: flex; flex-direction: column; width: 100%; }
-        .header { background-color: #4CAF50; color: white; padding: 15px 20px; text-align: center; font-size: 24px; font-weight: 700; }
-        .nav-bar { background-color: #f2f2f2; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
-        .nav-bar a { color: #333; text-decoration: none; padding: 8px 15px; border-radius: 5px; transition: background-color 0.3s; font-weight: 500; }
-        .nav-bar a:hover { background-color: #e2e2e2; }
-        .nav-bar a.active { background-color: #4CAF50; color: white; }
-        .hamburger-icon { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; }
-        .nav-links-container { display: flex; gap: 10px; }
-        .main-content-panel { padding: 20px; background-color: #f8f8f8; flex-grow: 1; }
-        .card { background-color: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); margin-bottom: 20px; overflow: hidden; }
-        .card-header { background-color: #8BC34A; color: white; padding: 15px 20px; font-size: 18px; font-weight: 700; }
-        .card-content { padding: 20px; }
-
-        /* 챗봇 스타일 */
-        #chat-history { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fcfcfc; display: flex; flex-direction: column; }
-        .chat-message { display: flex; margin-bottom: 10px; align-items: flex-end; }
-        .chat-message.user { justify-content: flex-end; }
-        .chat-message.bot { justify-content: flex-start; }
-        .message-bubble { padding: 10px 15px; border-radius: 18px; max-width: 70%; line-height: 1.4; word-wrap: break-word; }
-        .chat-message.user .message-bubble { background-color: #DCF8C6; color: #333; border-bottom-right-radius: 2px; }
-        .chat-message.bot .message-bubble { background-color: #E2E2E2; color: #333; border-bottom-left-radius: 2px; }
-        .message-info { font-size: 12px; color: #888; margin-bottom: 4px; display: flex; align-items: center; }
-        .chat-message.user .message-info { justify-content: flex-end; margin-right: 10px; }
-        .chat-message.bot .message-info { justify-content: flex-start; margin-left: 10px; }
-        .message-sender { font-weight: bold; margin-right: 5px; }
-        .chat-input-container { display: flex; gap: 10px; margin-top: 20px; }
-        #chat-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 16px; }
-        #send-chat-message { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
-        #send-chat-message:hover { background-color: #45a049; }
-        .btn { background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
-        .btn:hover { background-color: #1e88e5; }
-
-        /* 고급 기능 (링크, 파일 다운로드) 스타일 */
-        .link-button { /* FastAPI에서 생성된 링크 버튼 스타일 */
-            display: inline-block;
-            padding: 5px 10px;
-            margin-top: 5px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            text-align: center;
-        }
-        .link-button:hover { background-color: #0056b3; }
-        .download-link {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 12px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            text-align: center;
-        }
-        .download-link:hover { background-color: #0056b3; }
-
-        /* 모바일 반응형 */
-        @media (max-width: 768px) {
-            .nav-links-container { flex-direction: column; width: 100%; display: none; }
-            .nav-bar { flex-wrap: wrap; }
-            .hamburger-icon { display: block; }
-            .nav-links-container.active { display: flex; }
-        }
-
-        /* 이전 질문 내역 모달 스타일 */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1001; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto; /* 15% from the top and centered */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 90%; /* Could be more or less, depending on screen size */
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            position: absolute;
-            right: 15px;
-            top: 10px;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        #history-list {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #fcfcfc;
-            margin-top: 15px;
-        }
-        .history-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .history-item:last-child {
-            border-bottom: none;
-        }
-        .history-item:hover {
-            background-color: #e9e9e9;
-        }
-    </style>
+    <link rel="stylesheet" href="../css/chatbot.css">
 </head>
 <body>
 <div class="app-container">
@@ -153,237 +18,52 @@
             <i class="material-icons">menu</i>
         </button>
         <div class="nav-links-container" id="navLinksContainer">
-            <a href="../main.html">내 농장</a>
+            <a href="../main/main.html">내 농장</a>
             <a href="../1.html">작물 추가</a>
             <a href="../2.html">작물 추천</a>
             <a href="../3.html">재배 가이드</a>
-            <a href="../img/img.html">작물 진단</a>
+            <a href="../imgdiagnostics/img.html">작물 진단</a>
             <a href="../5.html">문제 해결</a>
             <a href="chatbot.html">챗봇 상담</a>
-            <a href="../7.html">환경 모니터링</a>
-            <a href="../8.html">수경 모니터링</a>
         </div>
     </div>
 
     <div class="main-content-panel">
         <section id="chatbot-panel">
             <div class="card">
-                <div class="card-header">💬 AI 챗봇 농업 상담 💬</div>
+                <div class="card-header"><span id="chatbot-header-title">💬 AI 챗봇 농업 상담 💬</span></div>
                 <div class="card-content">
                     <div id="chat-history">
                         <div class="chat-message bot">
                             <div class="message-info">
                                 <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[<span class="current-time"></span>]</span>
                             </div>
-                            <div class="message-bubble">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                            <div class="message-bubble" id="initial-chatbot-greeting">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
                         </div>
                     </div>
                     <div class="chat-input-container">
                         <input type="text" id="chat-input" placeholder="메시지 입력...">
                         <button id="send-chat-message">전송</button>
                     </div>
-                    <!-- 이전 질문 내역 확인 버튼 추가 -->
                     <button class="btn" style="width: 100%; margin-top: 10px;" id="show-history-button">이전 질문 내역 확인</button>
-                    <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='main.html'">내 농장으로 돌아가기</button>
+                    <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='../main.html'">내 농장으로 돌아가기</button>
                 </div>
             </div>
         </section>
     </div>
 </div>
 
-<!-- 이전 질문 내역 팝업 (모달) -->
 <div id="history-modal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeHistoryModal()">&times;</span>
         <h2 style="font-size: 20px; margin-bottom: 15px;">이전 질문 내역</h2>
         <div id="history-list">
-            <!-- 이전 질문들이 여기에 로드됩니다 -->
             <p style="text-align: center; color: #888;">이전 질문을 불러오는 중...</p>
         </div>
         <button class="btn" style="margin-top: 15px;" onclick="closeHistoryModal()">닫기</button>
     </div>
 </div>
 
-<!-- 기존 script.js 경로 수정: /static/js/script.js 로 변경 -->
-<script src="/static/js/script.js"></script>
-<!-- 챗봇 전용 JavaScript 코드 (HTML 내부에 포함) -->
-<script>
-    const USER_ID = 1; // 현재 하드코딩된 사용자 ID
-
-    // 햄버거 메뉴 토글 기능 (기존 코드 유지)
-    function toggleNavMenu() {
-        const navLinksContainer = document.getElementById('navLinksContainer');
-        navLinksContainer.classList.toggle('active');
-    }
-
-    // 페이지 로드 시, nav-bar의 '챗봇 상담' 링크를 활성화
-    document.addEventListener('DOMContentLoaded', () => {
-        const currentPath = window.location.pathname.split('/').pop();
-        const navLinks = document.querySelectorAll('.nav-bar a');
-        navLinks.forEach(link => {
-            const linkPath = link.getAttribute('href').split('/').pop(); // href에서 파일명만 추출
-            if (linkPath === currentPath) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
-        });
-
-        // 초기 챗봇 환영 메시지의 시간 설정
-        document.querySelector('.current-time').textContent = getCurrentTime();
-
-        // 챗봇 관련 이벤트 리스너 바인딩
-        const sendButton = document.getElementById('send-chat-message');
-        const chatInput = document.getElementById('chat-input');
-        if (sendButton && chatInput) {
-            sendButton.addEventListener('click', sendMessage);
-            chatInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                    e.preventDefault(); // Enter 키 입력 시 줄 바꿈 방지
-                }
-            });
-        }
-
-        // 이전 질문 내역 버튼 이벤트 리스너 바인딩
-        document.getElementById('show-history-button').addEventListener('click', showHistoryModal);
-    });
-
-    // 현재 시간 가져오는 함수
-    function getCurrentTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        return `${hours}:${minutes}`;
-    }
-
-    // 메시지를 채팅 기록에 추가하는 함수
-    function addMessageToChat(sender, messageHtmlContent, isUser = false) {
-        const chatHistory = document.getElementById('chat-history');
-        const messageClass = isUser ? 'user' : 'bot';
-        const senderName = isUser ? '나' : 'AgroBuddy 챗봇';
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${messageClass}`;
-        messageDiv.innerHTML = `
-            <div class="message-info">
-                <span class="message-sender">${senderName}</span>
-                <span class="message-time">[${getCurrentTime()}]</span>
-            </div>
-            <div class="message-bubble">${messageHtmlContent}</div>
-        `;
-        chatHistory.appendChild(messageDiv);
-        chatHistory.scrollTop = chatHistory.scrollHeight; // 스크롤을 맨 아래로
-    }
-
-    // 챗봇 API로 메시지를 전송하고 응답을 받는 함수
-    async function sendMessage() {
-        const chatInput = document.getElementById('chat-input');
-        const userMessage = chatInput.value.trim();
-
-        if (userMessage === "") {
-            return; // 빈 메시지는 전송하지 않음
-        }
-
-        addMessageToChat('user', userMessage, true); // 사용자 메시지 표시
-        chatInput.value = ''; // 입력 필드 초기화
-
-        // 로딩 메시지 표시
-        const loadingMessageDiv = document.createElement('div');
-        loadingMessageDiv.className = 'chat-message bot';
-        loadingMessageDiv.innerHTML = `
-            <div class="message-info">
-                <span class="message-sender">AgroBuddy 챗봇</span> <span class="message-time">[${getCurrentTime()}]</span>
-            </div>
-            <div class="message-bubble">...</div>
-        `;
-        document.getElementById('chat-history').appendChild(loadingMessageDiv);
-        document.getElementById('chat-history').scrollTop = document.getElementById('chat-history').scrollHeight;
-
-        try {
-            const response = await fetch('http://localhost:8000/chatbot/ask', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_query: userMessage, user_id: USER_ID }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`API 오류: ${errorData.detail || response.statusText}`);
-            }
-
-            const data = await response.json();
-            let botResponseContent = data.response; // FastAPI에서 이미 HTML로 변환된 내용
-
-            // 파일 다운로드 링크 처리 (FastAPI에서 HTML로 변환되지 않으므로 여기서 추가)
-            let additionalElementsHtml = '';
-            if (data.file_path) {
-                const fileName = data.file_path.split('/').pop(); // 파일명만 추출
-                const downloadUrl = `http://localhost:8000/files/${data.file_path}`; // FastAPI의 파일 다운로드 API 엔드포인트
-                additionalElementsHtml += `<br><a href="${downloadUrl}" download="${fileName}" class="download-link">${fileName} 다운로드</a>`;
-            }
-
-            loadingMessageDiv.remove(); // 로딩 메시지 제거
-            addMessageToChat('bot', botResponseContent + additionalElementsHtml); // HTML 내용 직접 표시
-
-        } catch (error) {
-            console.error("챗봇 API 호출 중 오류 발생:", error);
-            loadingMessageDiv.remove(); // 로딩 메시지 제거
-            addMessageToChat('bot', `죄송합니다. 오류가 발생했습니다: ${error.message}`);
-        }
-    }
-
-    // 이전 질문 내역 모달 열기 함수
-    async function showHistoryModal() {
-        const modal = document.getElementById('history-modal');
-        const historyList = document.getElementById('history-list');
-        historyList.innerHTML = '<p style="text-align: center; color: #888;">이전 질문을 불러오는 중...</p>'; // 로딩 메시지
-
-        modal.style.display = 'block'; // 모달 표시
-
-        try {
-            const response = await fetch(`http://localhost:8000/chatbot/history/${USER_ID}`);
-            if (!response.ok) {
-                throw new Error(`API 오류: ${response.statusText}`);
-            }
-            const history = await response.json();
-
-            historyList.innerHTML = ''; // 로딩 메시지 제거
-            if (history.length === 0) {
-                historyList.innerHTML = '<p style="text-align: center; color: #888;">이전 질문 내역이 없습니다.</p>';
-            } else {
-                history.forEach(query => {
-                    const queryItem = document.createElement('div');
-                    queryItem.className = 'history-item';
-                    queryItem.textContent = query; // 질문 텍스트
-                    queryItem.onclick = () => {
-                        document.getElementById('chat-input').value = query; // 입력 필드에 질문 채우기
-                        closeHistoryModal(); // 모달 닫기
-                        sendMessage(); // 챗봇에 질문 전송
-                    };
-                    historyList.appendChild(queryItem);
-                });
-            }
-
-        } catch (error) {
-            console.error("이전 질문 내역 로드 중 오류 발생:", error);
-            historyList.innerHTML = `<p style="color: red; text-align: center;">오류 발생: ${error.message}</p>`;
-        }
-    }
-
-    // 이전 질문 내역 모달 닫기 함수
-    function closeHistoryModal() {
-        document.getElementById('history-modal').style.display = 'none';
-    }
-
-    // 모달 외부 클릭 시 닫기
-    window.onclick = function(event) {
-        const modal = document.getElementById('history-modal');
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-</script>
+<script src="../js/chatbot.js"></script>
 </body>
 </html>

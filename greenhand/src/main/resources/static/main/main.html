@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 내 농장 (메인)</title>
+    <!-- 기존 style.css 대신 main.css 링크로 변경 (상대 경로) -->
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="logout-form-top-right">
+        <form action="/logout" method="post">
+            <button type="submit" class="logout-button">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="main.html">내 농장</a> <!-- 현재 페이지이므로 그대로 main.html -->
+            <a href="../1.html">작물 추가</a>
+            <a href="../2.html">작물 추천</a>
+            <a href="../3.html">재배 가이드</a>
+            <a href="../imgdiagnostics/img.html">작물 진단</a> <!-- imgdiagnostics 폴더 경로 반영 -->
+            <a href="../5.html">문제 해결</a>
+            <a href="../chatbot/chatbot.html">챗봇 상담</a> <!-- chatbot 폴더 경로 반영 -->
+        </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="mycrops-panel">
+            <div class="card">
+                <div class="card-header">🏡 내 농장물 진행도 📈</div>
+                <div class="card-content">
+                    <p style="text-align: center; font-size: 1.1em; color: #EEE; margin-bottom: 20px;">
+                        <span id="current-username-display">불러오는 중...</span>님의 농장</p>
+                    <ul class="crop-list">
+                        <p style="text-align: center; color: #ccc;">등록된 작물 정보는 현재 표시되지 않습니다.</p>
+                    </ul>
+                    <div class="user-crop-details" id="selected-crop-details" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #555;">
+                        <p><strong>작물명:</strong> <span id="detail-name">선택 없음</span></p>
+                        <p><strong>시작일:</strong> <span id="detail-start-date"></span></p>
+                        <p><strong>화분 크기:</strong> <span id="detail-pot-size"></span></p>
+                        <p><strong>물의 양:</strong> <span id="detail-water-amount"></span></p>
+                        <p><strong>물 주는 주기:</strong> <span id="detail-watering-frequency"></span></p>
+                        <p><strong>흙 종류:</strong> <span id="detail-soil-type"></span></p>
+                        <p><strong>진행도:</strong> <span id="detail-progress"></span></p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="detail-progress-bar"></div>
+                        </div>
+                        <button class="btn" style="margin-top: 15px;" onclick="alert('작물 상세 가이드 기능은 현재 구현되지 않았습니다.');">
+                            선택 작물 상세 가이드 보기
+                        </button>
+                        <button class="btn btn-secondary" style="margin-top: 5px;" onclick="alert('작물 삭제 기능은 현재 구현되지 않았습니다.');">
+                            선택 작물 삭제
+                        </button>
+                    </div>
+                    <button class="btn" style="width: 100%; margin-top: 20px;" onclick="alert('작물 추가 기능은 현재 구현되지 않았습니다.');">
+                        + 내 작물 추가
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+<!-- 기존 script.js 대신 main.js 링크로 변경 (상대 경로) -->
+<script src="../js/main.js"></script>
+</body>
+</html>
