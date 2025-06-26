@@ -103,8 +103,9 @@ function getCurrentTime() {
  * @param {boolean} isUser 사용자인지 챗봇인지 여부
  * @param {File | null} imageFile (선택 사항) 클라이언트 미리보기용 File 객체
  * @param {string | null} imageUrlFromServer (선택 사항) 서버에서 받은 이미지 URL (이전 기록용 또는 봇 응답 이미지)
+ * @param {string | null} fileUrlFromServer (추가됨) 서버에서 받은 파일 URL (예: 엑셀/워드)
  */
-function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile = null, imageUrlFromServer = null) {
+function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile = null, imageUrlFromServer = null, fileUrlFromServer = null) {
     const chatHistory = document.getElementById('chat-history');
     if (!chatHistory) {
         console.error("[Chatbot UI Error] 'chat-history' 요소를 찾을 수 없습니다. 메시지를 추가할 수 없습니다.");
@@ -138,11 +139,10 @@ function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile 
             imageElement.style.maxWidth = '100%';
             imageElement.style.height = 'auto';
             imageElement.style.display = 'block';
-            imageElement.style.marginBottom = messageHtmlContent ? '10px' : '0'; // 텍스트가 있으면 여백 추가
+            imageElement.style.marginBottom = messageHtmlContent ? '10px' : '0';
             messageBubble.appendChild(imageElement);
 
             if (messageHtmlContent) {
-                // 이미지가 있고 텍스트 내용도 있으면 줄 바꿈 후 텍스트 추가
                 messageBubble.innerHTML += `<div>${messageHtmlContent}</div>`;
             }
 
@@ -152,15 +152,14 @@ function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile 
         };
         reader.readAsDataURL(imageFile);
     } else if (imageUrlFromServer) { // 서버로부터 받은 이미지 URL (이전 기록용 또는 봇이 반환한 이미지)
-        // FastAPI 서버의 `uploaded_images` 정적 서빙 경로에 맞춰 URL을 조정
-        const fullImageUrl = `http://localhost:8000${imageUrlFromServer}`;
+        const fullImageUrl = `http://localhost:8000${imageUrlFromServer}`; // FastAPI가 8000포트라고 가정
         const imageElement = document.createElement('img');
         imageElement.src = fullImageUrl;
         imageElement.alt = "첨부 이미지";
         imageElement.style.maxWidth = '100%';
         imageElement.style.height = 'auto';
         imageElement.style.display = 'block';
-        imageElement.style.marginBottom = messageHtmlContent ? '10px' : '0'; // 텍스트가 있으면 여백 추가
+        imageElement.style.marginBottom = messageHtmlContent ? '10px' : '0';
         messageBubble.appendChild(imageElement);
 
         if (messageHtmlContent) {
@@ -170,7 +169,39 @@ function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile 
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
         console.log(`[Chatbot UI] 이미지 URL 메시지 (서버 응답/이전 기록) 추가 완료. URL: ${fullImageUrl}`);
-    } else { // 이미지 없이 텍스트만
+    } else if (fileUrlFromServer) { // 추가된 파일 다운로드 링크 처리 부분
+        // 메시지 텍스트를 먼저 추가 (예: "요청하신 엑셀 보고서가 생성되었습니다.")
+        messageBubble.innerHTML = messageHtmlContent;
+
+        const downloadLink = document.createElement('a');
+        const fullFileUrl = `http://localhost:8000${fileUrlFromServer}`; // FastAPI가 8000포트라고 가정
+        downloadLink.href = fullFileUrl;
+
+        // 파일명만 추출하여 링크 텍스트로 사용
+        const fileName = fileUrlFromServer.substring(fileUrlFromServer.lastIndexOf('/') + 1);
+        downloadLink.textContent = `[${fileName}] 다운로드`;
+
+        downloadLink.target = "_blank"; // 새 탭에서 열기 (선택 사항)
+        downloadLink.download = true;   // 브라우저에게 파일을 다운로드하도록 지시
+
+        // 링크 스타일 (버튼처럼 보이게)
+        downloadLink.style.display = 'block'; // 링크를 블록 요소로 만들어 줄바꿈되게
+        downloadLink.style.marginTop = '10px'; // 텍스트와 링크 사이에 여백 추가
+        downloadLink.style.padding = '8px 12px';
+        downloadLink.style.backgroundColor = '#4CAF50'; // 예시 색상
+        downloadLink.style.color = 'white';
+        downloadLink.style.textAlign = 'center';
+        downloadLink.style.textDecoration = 'none';
+        downloadLink.style.borderRadius = '5px';
+        downloadLink.style.maxWidth = 'fit-content'; // 내용에 맞게 너비 조절
+
+        messageBubble.appendChild(downloadLink); // 메시지 버블에 다운로드 링크 추가
+
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        console.log(`[Chatbot UI] 파일 다운로드 링크 추가 완료. URL: ${fullFileUrl}`);
+
+    } else { // 이미지나 파일 없이 텍스트만
         messageBubble.innerHTML = messageHtmlContent;
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -191,21 +222,18 @@ async function sendMessage() {
         return;
     }
 
-    if (USER_ID === null) {
-        alert('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
-        console.warn("[Chatbot Send] USER_ID가 NULL입니다. 사용자 정보를 기다리는 중...");
+    // USER_ID가 null이거나 NaN일 경우 경고 및 반환
+    if (USER_ID === null || isNaN(USER_ID)) {
+        alert('사용자 정보를 불러오는 중입니다. 잠시 후 다시 시도하거나, 로그아웃 후 다시 로그인해주세요.');
+        console.warn("[Chatbot Send] USER_ID가 NULL이거나 NaN입니다. 사용자 정보를 기다리는 중...");
         return;
     }
 
-    // --- 👇 수정된 부분: 사용자 텍스트 메시지를 로딩 메시지보다 먼저 표시 👇 ---
-    if (userMessage !== "") { // 텍스트 메시지가 있을 경우
+    // 사용자 텍스트 메시지 즉시 표시 (이미지는 'change' 이벤트에서 미리보기 됨)
+    if (userMessage !== "") {
         console.log("[Chatbot Send] 사용자 텍스트 메시지 즉시 표시:", userMessage);
         addMessageToChat('user', userMessage, true);
     }
-    // 이미지 파일은 'change' 이벤트에서 이미 addMessageToChat으로 미리보기 되었을 것입니다.
-    // 따라서 여기서는 텍스트 메시지만 즉시 표시하는 로직을 추가합니다.
-    // 만약 텍스트 없이 이미지만 보내는 경우, 이미지는 이미 'change' 이벤트에서 추가되었으므로 중복되지 않습니다.
-    // --- 👆 수정된 부분 👆 ---
 
     chatInput.value = ''; // 텍스트 입력 필드 초기화 (사용자 메시지 표시 후)
 
@@ -251,15 +279,17 @@ async function sendMessage() {
         console.log("[Chatbot Send] 로딩 메시지 제거됨.");
 
         const botResponseText = data.response || "죄송합니다. 응답 내용을 찾을 수 없습니다.";
-        const botResponseImageUrl = data.image_url || null; // 예시: 서버 응답에 'image_url' 필드가 있다면
+        const botResponseImageUrl = data.image_url || null;
+        const botResponseFilePath = data.file_path || null; // 추가: 파일 경로 추출
 
-        addMessageToChat('bot', botResponseText, false, null, botResponseImageUrl); // 챗봇 응답 및 이미지 추가
-        console.log(`[Chatbot Send] 챗봇 응답 대화창에 추가 시도. 텍스트: "${botResponseText.substring(0, Math.min(botResponseText.length, 30))}...", 이미지 URL: ${botResponseImageUrl}`);
+        // addMessageToChat 함수 호출 시 fileUrlFromServer 인자 추가
+        addMessageToChat('bot', botResponseText, false, null, botResponseImageUrl, botResponseFilePath);
+        console.log(`[Chatbot Send] 챗봇 응답 대화창에 추가 시도. 텍스트: "${botResponseText.substring(0, Math.min(botResponseText.length, 30))}...", 이미지 URL: ${botResponseImageUrl}, 파일 URL: ${botResponseFilePath}`);
 
-        // ✅ 이미지 전송 후 상태 초기화
-        selectedImageFile = null; // 전송 완료 후 선택된 파일 정보 초기화
+        // 이미지 전송 후 상태 초기화
+        selectedImageFile = null;
         if (imageUploadInput) {
-            imageUploadInput.value = ''; // 파일 input 초기화 (같은 파일 재선택 가능하게)
+            imageUploadInput.value = '';
             console.log("[Chatbot Send] selectedImageFile 및 파일 input 초기화됨.");
         }
 
@@ -283,9 +313,10 @@ async function showHistoryModal() {
     modal.style.display = 'block'; // 모달 표시
     console.log("[History Modal] 이전 질문 내역 모달 열기 시도.");
 
-    if (USER_ID === null) {
+    // USER_ID가 null이거나 NaN일 경우 경고 및 반환
+    if (USER_ID === null || isNaN(USER_ID)) {
         historyList.innerHTML = '<p style="text-align: center; color: red;">사용자 정보를 불러오지 못했습니다. 로그인 상태를 확인해주세요.</p>';
-        console.warn("[History Modal] USER_ID가 NULL입니다. 이전 질문 내역을 불러올 수 없습니다.");
+        console.warn("[History Modal] USER_ID가 NULL이거나 NaN입니다. 이전 질문 내역을 불러올 수 없습니다.");
         return;
     }
 
@@ -312,21 +343,24 @@ async function showHistoryModal() {
 
                 let historyContent = `<strong>나:</strong> ${item.user_query}`;
                 if (item.image_url) {
-                    // 이전 기록의 이미지를 표시 (FastAPI의 /uploaded_images/ 경로 반영)
                     const fullImageUrl = `http://localhost:8000${item.image_url}`;
                     historyContent += `<br><img src="${fullImageUrl}" alt="첨부 이미지" style="max-width: 100px; max-height: 100px; border-radius: 4px; margin-top: 5px;">`;
                 }
                 historyContent += `<br><strong>AgroBuddy 챗봇:</strong> ${item.bot_response}`;
 
-                queryItem.innerHTML = historyContent; // HTML 내용을 넣으므로 innerHTML 사용
+                // 이전 기록에도 파일 링크 표시 로직 추가
+                if (item.file_path) { // FastAPI ChatLog 모델에 file_path 필드를 추가했다면
+                    const fullFileUrl = `http://localhost:8000${item.file_path}`;
+                    const fileName = item.file_path.substring(item.file_path.lastIndexOf('/') + 1);
+                    historyContent += `<br><a href="${fullFileUrl}" target="_blank" download style="display:inline-block; margin-top:5px; padding:5px 10px; background-color:#e0e0e0; color:#333; text-decoration:none; border-radius:3px;">[${fileName}] 다운로드</a>`;
+                }
+
+                queryItem.innerHTML = historyContent;
 
                 queryItem.onclick = () => {
-                    document.getElementById('chat-input').value = item.user_query; // 입력 필드에 질문 채우기
-                    closeHistoryModal(); // 모달 닫기
-                    // 이전 기록을 클릭했을 때 이미지는 다시 전송하지 않습니다. (텍스트만)
+                    document.getElementById('chat-input').value = item.user_query;
+                    closeHistoryModal();
                     console.log(`[History Modal] 이전 질문 클릭됨: "${item.user_query}"`);
-                    // sendMessage(); // 이전 질문을 클릭했을 때 자동으로 메시지를 보내지 않도록 주석 처리
-                                   // 사용자가 입력 필드에 질문이 채워진 것을 확인 후 직접 '전송' 누르도록 유도
                 };
                 historyList.appendChild(queryItem);
             });
@@ -348,7 +382,7 @@ function closeHistoryModal() {
 // 모달 외부 클릭 시 닫기
 window.onclick = function(event) {
     const modal = document.getElementById('history-modal');
-    if (modal && event.target === modal) { // modal이 존재하는지 확인
+    if (modal && event.target === modal) {
         modal.style.display = "none";
         console.log("[History Modal] 모달 외부 클릭으로 모달 닫힘.");
     }
@@ -378,22 +412,29 @@ async function loadUserNicknameForChatbot() {
                 console.log(`[User Load] 챗봇 헤더 타이틀 업데이트: ${displayUserName}님`);
             }
 
-            // USER_ID를 로그인된 사용자의 실제 userId로 업데이트
-            if (userData.userId) {
-                USER_ID = parseInt(userData.userId); // 문자열을 숫자로 변환
-                console.log("[User Load] USER_ID 설정됨:", USER_ID);
+            // --- USER_ID 설정 로직 ---
+            if (userData.userId !== undefined && userData.userId !== null) {
+                USER_ID = userData.userId;
+                console.log("[User Load] USER_ID 설정됨 (DB userId):", USER_ID, " (타입:", typeof USER_ID, ")");
+            } else if (userData.username) {
+                const parsedId = parseInt(userData.username);
+                if (!isNaN(parsedId)) {
+                    USER_ID = parsedId;
+                    console.warn("[User Load] USER_ID 설정됨 (Fallback to username - Kakao ID):", USER_ID, " (타입:", typeof USER_ID, "). 백엔드 MainController에서 'userId'를 우선적으로 넘겨주는지 확인하세요.");
+                } else {
+                    console.warn("[User Load] userData.username이 유효한 숫자가 아닙니다:", userData.username);
+                }
             } else {
-                console.warn("[User Load] 사용자 ID를 불러오지 못했습니다. 챗봇 기능이 제한될 수 있습니다.");
+                console.warn("[User Load] 사용자 ID(userId 또는 username)를 불러오지 못했습니다. 챗봇 기능이 제한될 수 있습니다.");
             }
+            // --- /USER_ID 설정 로직 ---
+
         } else if (response.status === 401 || response.status === 403) {
             console.warn('[User Load] 사용자 정보 로드 실패: 인증 필요 (상태 코드:', response.status, ').');
-            // 인증되지 않은 경우 기본 메시지 유지
         } else {
             console.error('[User Load] 사용자 정보 로드 실패 (상태 코드:', response.status, ').');
-            // 오류 시 기본 메시지 유지
         }
     } catch (error) {
         console.error('[User Load] 사용자 정보 로드 네트워크 오류:', error);
-        // 네트워크 오류 시 기본 메시지 유지
     }
 }
