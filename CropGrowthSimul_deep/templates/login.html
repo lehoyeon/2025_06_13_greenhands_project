@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 로그인</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body class="center-content">
+    <div class="app-container">
+        <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+        <div class="nav-bar">
+            <a href="/login">로그인</a>
+            <a href="sing.html">회원가입</a>
+            <a href="/main">내 농장</a>
+            <a href="1.html">작물 추가</a>
+            <a href="/recommend_crop">작물 추천</a>
+            <a href="3.html">재배 가이드</a>
+            <a href="4.html">작물 진단</a>
+            <a href="5.html">문제 해결</a>
+            <a href="6.html">챗봇 상담</a>
+        </div>
+
+        <div class="main-content-panel">
+            <section id="login-panel">
+                <div class="card">
+                    <div class="card-header">AgroBuddy 로그인</div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <label for="login-username">사용자 이름</label>
+                            <input type="text" id="login-username" placeholder="ID를 입력하세요">
+                        </div>
+                        <div class="input-group">
+                            <label for="login-password">비밀번호</label>
+                            <input type="password" id="login-password" placeholder="비밀번호를 입력하세요">
+                        </div>
+                        <button class="btn" onclick="simulateLogin()">로그인</button>
+                        
+                        <div style="margin-top: 20px; text-align: center; color: #AAA;">또는</div>
+                        <button class="btn btn-social" onclick="alert('Google 소셜 로그인 구현 예정입니다.');" style="background-color: #DB4437; color: white;">
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">account_circle</i> Google 로그인
+                        </button>
+                        <button class="btn btn-social" onclick="alert('Kakao 소셜 로그인 구현 예정입니다.');" style="background-color: #FEE500; color: #191919;">
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">chat_bubble</i> Kakao 로그인
+                        </button>
+                        <button class="btn btn-social" onclick="alert('Naver 소셜 로그인 구현 예정입니다.');" style="background-color: #03C75A; color: white;">
+                            <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">favorite</i> Naver 로그인
+                        </button>
+                        <button class="btn btn-secondary" style="margin-top: 20px;" onclick="window.location.href='sing.html'">회원가입</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="js/script.js"></script>
+    <script>
+        // 이 함수는 script.js에 정의된 goToTab 함수를 사용하지 않으므로, 이 페이지에 직접 정의합니다.
+        function simulateLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            if (username) {
+                // [기술 명시: Spring Security를 이용한 사용자 인증 처리]
+                alert(`[기술 명시: Spring Security를 이용한 사용자 인증 처리] \n\n${username}님 로그인 성공! 내 농장 화면으로 이동합니다.`);
+                localStorage.setItem('loggedInUser', username); // 사용자 이름 저장
+                window.location.href = '/main'; // 메인 앱 페이지로 이동
+            } else {
+                alert('사용자 이름을 입력해주세요.');
+            }
+        }
+        // 페이지 로드 시, nav-bar의 '로그인' 링크를 활성화
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentPath = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-bar a');
+            navLinks.forEach(link => {
+                const linkPath = link.getAttribute('href');
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
