@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // '자세한 진단 결과 확인' 버튼 클릭 이벤트 (DOMContentLoaded 이후에만 존재)
     if (viewDetailsBtn) { // 버튼이 존재할 때만 이벤트 리스너 추가
         viewDetailsBtn.addEventListener('click', function() {
-            window.location.href = '/img/img_results.html'; // 결과 페이지로 이동
+            window.location.href = '/imgdiagnostics/img_results.html'; // 결과 페이지로 이동
         });
     }
 });

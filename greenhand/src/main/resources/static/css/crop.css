@@ -1,0 +1,189 @@
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background-color: #f0f9f0;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.header {
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #2e7d32;
+}
+
+.nav-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #388e3c;
+  font-weight: 600;
+  padding: 8px 12px;
+  border: 1px solid #81c784;
+  border-radius: 8px;
+  background-color: #e8f5e9;
+  transition: background 0.3s;
+}
+
+.nav-bar a:hover {
+  background-color: #c8e6c9;
+}
+
+.card-group {
+  border: 1px solid #c5e1a5;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #ffffff;
+  margin-bottom: 30px;
+}
+
+.card-header {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #33691e;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.horizontal-layout {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.recommended-crops-box,
+.crop-details-box {
+  flex: 1;
+  min-width: 280px;
+}
+
+.options-area label {
+  display: block;
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.options-area select,
+.options-area button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.options-area button {
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  margin-top: 12px;
+  cursor: pointer;
+}
+
+#recommended-crops button {
+  margin: 4px;
+  background-color: #81c784;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#recommended-crops button:hover {
+  background-color: #66bb6a;
+}
+
+.progress-bar-container {
+  background-color: #ddd;
+  border-radius: 10px;
+  height: 16px;
+  margin-top: 6px;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: 10px;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #43a047;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background-color: #66bb6a;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.logout-form-top-right {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+.logout-button {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}

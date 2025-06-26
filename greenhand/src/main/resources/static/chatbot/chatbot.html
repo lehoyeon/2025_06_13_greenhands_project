@@ -6,12 +6,18 @@
     <title>초록손 - 챗봇 상담</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="../css/main.css">
     <link rel="stylesheet" href="../css/chatbot.css">
 </head>
 <body>
 <div class="app-container">
     <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="logout-form-top-right">
+        <form action="/logout" method="post">
+            <button type="submit" class="logout-button">로그아웃</button>
+        </form>
+    </div>
 
     <div class="nav-bar">
         <button class="hamburger-icon" onclick="toggleNavMenu()">
