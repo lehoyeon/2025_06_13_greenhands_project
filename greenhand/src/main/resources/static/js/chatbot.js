@@ -1,5 +1,3 @@
-// resources/static/js/chatbot/chatbot.js
-
 // USER_ID를 전역 변수로 선언하고 초기화되지 않은 상태로 둡니다.
 // 로그인된 사용자 정보가 로드된 후 실제 userId로 업데이트됩니다.
 let USER_ID = null;
@@ -96,15 +94,6 @@ function getCurrentTime() {
     return `${hours}:${minutes}`;
 }
 
-/**
- * 메시지를 채팅 기록에 추가하는 함수
- * @param {string} sender 메시지를 보내는 주체 (예: 'user', 'bot')
- * @param {string} messageHtmlContent 메시지 내용 (HTML 문자열 가능)
- * @param {boolean} isUser 사용자인지 챗봇인지 여부
- * @param {File | null} imageFile (선택 사항) 클라이언트 미리보기용 File 객체
- * @param {string | null} imageUrlFromServer (선택 사항) 서버에서 받은 이미지 URL (이전 기록용 또는 봇 응답 이미지)
- * @param {string | null} fileUrlFromServer (추가됨) 서버에서 받은 파일 URL (예: 엑셀/워드)
- */
 function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile = null, imageUrlFromServer = null, fileUrlFromServer = null) {
     const chatHistory = document.getElementById('chat-history');
     if (!chatHistory) {
@@ -208,7 +197,6 @@ function addMessageToChat(sender, messageHtmlContent, isUser = false, imageFile 
         console.log(`[Chatbot UI] 텍스트 메시지 추가 완료. 내용: "${messageHtmlContent.substring(0, Math.min(messageHtmlContent.length, 30))}..."`);
     }
 }
-
 
 // 챗봇 API로 메시지를 전송하고 응답을 받는 함수
 async function sendMessage() {

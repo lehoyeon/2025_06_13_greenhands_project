@@ -18,17 +18,11 @@
     </div>
 
     <div class="nav-bar">
-        <a href="/login/login.html">로그인</a>
-        <a href="/login/signup.html">회원가입</a>
         <a href="main.html">내 농장</a>
-        <a href="1.html">작물 추가</a>
-        <a href="crop_plus.html">작물 추천</a>
+        <a href="crop_plus.html">작물 추가</a>
         <a href="3.html">재배 가이드</a>
-        <a href="img/img.html">작물 진단</a>
-        <a href="5.html">문제 해결</a>
-        <a href="chatbot/chatbot.html">챗봇 상담</a>
-        <a href="7.html">환경 모니터링</a>
-        <a href="8.html">실내 농장</a>
+        <a href="img.html">작물 진단</a>
+        <a href="chatbot.html">챗봇 상담</a>
     </div>
 
     <div class="main-content-panel">
@@ -117,7 +111,7 @@
       cropsContainer.innerHTML = "불러오는 중...";
 
       try {
-        const response = await fetch("http://localhost:5000/api/recommend-crop", {
+        const response = await fetch("http://localhost:8000/api/recommend-crop", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ harvest, environment: env }),

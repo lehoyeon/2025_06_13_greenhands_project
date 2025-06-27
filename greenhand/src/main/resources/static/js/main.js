@@ -1,5 +1,3 @@
-// resources/static/js/main/main.js
-
 // 햄버거 메뉴 토글 함수
 function toggleNavMenu() {
     const navLinksContainer = document.getElementById('navLinksContainer');
@@ -26,12 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // '내 농장' 페이지 로드 시 사용자 이름 로드
     loadUserInfo();
-
-    // 작물 관련 로직은 현재 비활성화되어 있으므로 호출하지 않습니다.
-    // loadUserCrops();
-    // selectCrop(); // 초기화만 (null 전달)
 });
-
 
 // --- 사용자 정보 로드 (AJAX) ---
 async function loadUserInfo() {
@@ -59,7 +52,3 @@ async function loadUserInfo() {
         if(usernameDisplay) usernameDisplay.textContent = '정보 로드 실패';
     }
 }
-
-// --- 작물 관련 함수들은 현재 사용하지 않으므로 포함하지 않습니다. ---
-// loadUserCrops() 및 selectCrop() 함수는 이 파일에서는 정의하지 않습니다.
-// 실제 작물 기능 구현 시 다시 추가될 것입니다.

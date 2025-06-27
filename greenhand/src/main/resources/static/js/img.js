@@ -1,5 +1,3 @@
-// src/main/resources/static/js/img/img.js
-
 // 사용자 ID를 전역 변수로 선언하고 초기화되지 않은 상태로 둡니다.
 let currentUserId = null;
 
@@ -15,11 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.remove('active');
         }
     });
-
-    // 햄버거 메뉴 토글 함수 (main.js에서 가져온 경우 이 파일에서 제거 가능)
-    // 현재는 img.html에서 main.js를 먼저 로드하므로, main.js에 이 함수가 있다고 가정합니다.
-    // 만약 main.js에 없거나, img.js에서만 쓰인다면 여기에 정의해두는 것이 좋습니다.
-    // function toggleNavMenu() { /* ... */ }
 
     // 사용자 ID 로드 (main.html의 loadUserInfo와 유사)
     loadUserIdForDiagnosis();
@@ -37,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const diagnoseButton = document.querySelector('.btn-diagnose'); // 진단 시작 버튼
     const diagnosisError = document.getElementById('diagnosisError');
     const viewDetailsBtn = document.getElementById('viewDetailsBtn');
-
 
     // 이미지 선택 시 미리보기 표시
     imageUpload.addEventListener('change', function(event) {
@@ -69,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 폼 제출 (이미지 업로드 및 진단 요청)
     uploadForm.addEventListener('submit', async function(event) {
         event.preventDefault(); // 폼의 기본 제출 방지
-
         diagnosisResultSection.style.display = 'block'; // 결과 섹션 표시
         geminiResponseText.textContent = '이미지를 분석 중입니다... 잠시만 기다려주세요.'; // 로딩 메시지
         geminiResponseText.style.color = '#616161'; // 로딩 메시지 색상
@@ -163,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     // 이미지 압축/리사이즈 함수 (HTML5 Canvas 사용)
     async function compressImage(file, maxWidth, quality) {
         return new Promise((resolve, reject) => {
@@ -220,25 +210,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     function displayError(message) {
         geminiResponseText.textContent = message;
         geminiResponseText.style.color = '#D32F2F'; // 에러 메시지 색상
         diagnosisError.textContent = message; // 기존 에러 메시지 표시 영역에도
         diagnosisError.style.display = 'block';
-        // 이 부분은 Gemini 응답으로 대체되므로 필요 없어질 수 있습니다.
-        // diagnosisStatus.textContent = '진단 실패!';
-        // predictedDisease.textContent = 'N/A';
-        // confidenceScore.textContent = 'N/A';
-        // confidenceProgressBar.style.width = '0%';
-        // confidenceProgressBar.textContent = '';
         viewDetailsBtn.style.display = 'none'; // 오류 시 버튼 숨기기
     }
 
     // '자세한 진단 결과 확인' 버튼 클릭 이벤트 (DOMContentLoaded 이후에만 존재)
     if (viewDetailsBtn) { // 버튼이 존재할 때만 이벤트 리스너 추가
         viewDetailsBtn.addEventListener('click', function() {
-            window.location.href = '/imgdiagnostics/img_results.html'; // 결과 페이지로 이동
+            window.location.href = '/img_results.html'; // 결과 페이지로 이동
         });
     }
 });

@@ -1,8 +1,11 @@
+import os
+import json
+import requests
+import logging # 로깅은 계속 사용하도록 유지
 from fastapi import FastAPI, HTTPException, Request, Depends, File, UploadFile, Form
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
-import os
 import google.generativeai as genai
 import asyncio
 import base64
@@ -32,31 +35,41 @@ import re
 from google.api_core.exceptions import GoogleAPIError, InvalidArgument, ResourceExhausted, Aborted, NotFound, InternalServerError, ServiceUnavailable, GatewayTimeout, DeadlineExceeded
 
 # --- 1. 환경 변수 로드 및 Gemini API 설정 ---
-load_dotenv(dotenv_path='test.env') # 챗봇 API 키 (GOOGLE_API_KEY)
-load_dotenv(dotenv_path='img.env', override=True) # 이미지 진단 API 키 (GOOGLE_API_KEY가 중복될 수 있음)
+# 두 .env 파일에서 키를 로드합니다. (test.env와 img.env)
+load_dotenv(dotenv_path='test.env')
+load_dotenv(dotenv_path='img.env', override=True) # override=True로 img.env의 키가 test.env와 중복될 경우 덮어쓰도록 합니다.
 
 GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 genai_configured = False
 global_gemini_model = None # 전역 Gemini 모델 인스턴스를 저장할 변수 선언
+global_gemini_flash_model = None # gemini-2.0-flash 모델을 위한 변수 추가
 
 if not GEMINI_API_KEY:
     print("FATAL ERROR: GOOGLE_API_KEY 환경 변수가 설정되지 않았습니다. .env 파일을 확인해주세요.")
+    # FastAPI 시작 전에 앱이 제대로 동작하지 않음을 알리기 위해 예외 발생
+    raise RuntimeError("GOOGLE_API_KEY 환경 변수를 설정해야 합니다.")
 else:
     try:
         genai.configure(api_key=GEMINI_API_KEY)
-        global_gemini_model = genai.GenerativeModel('gemini-1.5-flash') 
-        print("FastAPI: Gemini API가 성공적으로 설정되고 모델이 로드되었습니다.")
+        global_gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+        global_gemini_flash_model = genai.GenerativeModel('gemini-2.0-flash') # 'gemini-2.0-flash' 모델 로드
+        print("FastAPI: Gemini API가 성공적으로 설정되고 모델들이 로드되었습니다.")
         genai_configured = True
     except Exception as e:
         print(f"FastAPI: FATAL ERROR: Gemini API 구성 중 오류 발생: {type(e).__name__}: {e}")
         import traceback
         traceback.print_exc()
+        # API 키 설정 실패 시에도 앱이 시작되지 않도록 예외 발생
+        raise RuntimeError(f"Gemini API 구성 실패: {e}")
+
+# 로깅 설정 (Flask에서 사용하던 logging을 FastAPI에서도 활용)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # --- 2. FastAPI 애플리케이션 초기화 ---
 app = FastAPI(
     title="초록손 통합 AI 서비스",
-    description="Gemini API를 활용한 챗봇 및 식물 진단 통합 서비스",
+    description="Gemini API를 활용한 챗봇, 식물 진단, 작물 추천 및 가이드 통합 서비스",
     version="1.0.0"
 )
 
@@ -64,7 +77,7 @@ app = FastAPI(
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "*"
+    "*" # 개발 환경에서는 모든 출처 허용. 실제 배포 시에는 특정 출처만 허용하도록 변경 권장.
 ]
 
 app.add_middleware(
@@ -91,6 +104,13 @@ class PlantDiagnosisRequest(BaseModel):
     mime_type: str
     prompt: str
     user_id: int
+
+class CropRecommendationRequest(BaseModel):
+    harvest: str
+    environment: str
+
+class CropGuideRequest(BaseModel):
+    crop_name: str
 
 # --- 6. 데이터베이스 설정 및 모델 정의 ---
 DATABASE_URL = "mysql+pymysql://root:user1234@192.168.0.30:3306/greenhand" 
@@ -158,7 +178,7 @@ def get_or_create_user(db: Session, user_id: int, username: str = "default_user"
     except Exception as e:
         print(f"Error getting or creating user: {type(e).__name__}: {e}")
         db.rollback()
-        raise
+        raise HTTPException(status_code=500, detail=f"사용자 정보를 처리하는 중 오류가 발생했습니다: {e}")
 
 # --- 7. 헬퍼 함수: 이미지 파일 저장 ---
 async def save_base64_image(base64_string: str, mime_type: str) -> Optional[str]:
@@ -196,7 +216,6 @@ async def save_uploaded_image_file(image_file: UploadFile) -> Optional[str]:
         print(f"ERROR: Failed to save uploaded image file: {type(e).__name__}: {e}")
         return None
 
-
 # --- 8. 지식 데이터베이스 (농업 정보) ---
 agricultural_knowledge_base = {
     "상추 재배 방법": "상추는 서늘하고 햇볕이 잘 드는 곳에서 잘 자랍니다. 씨앗을 심고 싹이 나면 솎아주세요. 물은 흙이 마르지 않게 꾸준히 주는 것이 중요합니다.",
@@ -212,25 +231,12 @@ agricultural_knowledge_base = {
 }
 
 # --- 9. 보고서/엑셀 생성 함수 ---
-# 엑셀 보고서를 생성하고, 저장된 파일의 URL (정적 서빙 경로)을 반환합니다.
-# 엑셀은 정형 데이터가 없으면 의미가 없기 때문에, 데이터 없이 경고 메시지만 담음
 def generate_excel_report(subject: str = "농작물", content_for_report=None): 
     try:
-        # 엑셀 보고서는 정형 데이터가 필요하므로, 사용자 요청 텍스트에서 데이터를 추출하는 로직이 필요합니다.
-        # 현재는 이 기능을 구현하지 않으므로, 안내 메시지만 제공합니다.
         file_base_name = f"{subject}_관련_정보_요약"
         file_name = os.path.join(REPORT_DIR, f"{file_base_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx")
         
-        # 빈 엑셀 파일을 생성하거나, 데이터 없이 특정 메시지만 포함하는 방식도 가능
-        # 여기서는 단순히 생성 안내 메시지만 반환하고, 실제 엑셀 파일은 비어있을 수 있습니다.
-        # 만약 진짜 엑셀 파일을 원하면, 판다스 DataFrame을 생성해야 합니다.
-        # 예: df = pd.DataFrame({'안내': ["엑셀 보고서는 데이터를 기반으로 합니다."], '내용': ["현재는 데이터 추출 기능이 제한되어 있어 워드 보고서가 더 적합합니다."]})
-        # df.to_excel(file_name, index=False)
-        
-        # 실제 파일을 생성하지 않고 메시지만 반환하거나, 빈 파일 생성 후 메시지 추가
-        # 여기서는 파일은 생성하되, 데이터는 포함하지 않는다는 메시지를 명확히 전달
-        # 빈 엑셀 파일 생성
-        pd.DataFrame().to_excel(file_name, index=False) # 빈 데이터프레임으로 빈 엑셀 파일 생성
+        pd.DataFrame().to_excel(file_name, index=False) 
 
         message = (
             f"요청하신 엑셀 보고서 '{os.path.basename(file_name)}'가 성공적으로 생성되었습니다."
@@ -252,7 +258,6 @@ def generate_word_report(subject: str = "농작물", content_for_report=None):
         
         if content_for_report:
             document.add_heading('1. 요청하신 정보 요약', level=2)
-            # HTML 태그 (<a href> 등)를 제거하고 순수 텍스트만 넣도록 수정
             clean_content = re.sub(r'<a href=".*?\" class="link-button".*?>(.*?)</a>', r'\1', content_for_report)
             for paragraph in clean_content.split('\n'):
                 if paragraph.strip():
@@ -262,11 +267,6 @@ def generate_word_report(subject: str = "농작물", content_for_report=None):
             document.add_paragraph('이 보고서는 요청하신 내용에 대한 일반적인 정보를 포함합니다.')
             document.add_paragraph('구체적인 정보는 챗봇과의 대화 기록을 참고하시거나, 질문 시 더 자세히 말씀해주세요.')
             
-        # "2. 참고 데이터 (샘플)" 섹션 제거
-        # document.add_heading('2. 참고 데이터 (샘플)', level=2)
-        # data = {} ... (이전 샘플 데이터 및 표 생성 로직 제거)
-        # document.add_paragraph('\n본 보고서의 데이터는 예시이며, 실제 재배 데이터와는 다를 수 있습니다.')
-
         file_name = os.path.join(REPORT_DIR, f"{subject}_정보_보고서_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx")
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
         document.save(file_name)
@@ -282,6 +282,7 @@ def generate_word_report(subject: str = "농작물", content_for_report=None):
 
 
 # --- 10. API 엔드포인트 정의 ---
+
 @app.post("/chatbot/ask")
 async def ask_chatbot_endpoint(
     user_query: str = Form(""),
@@ -290,7 +291,7 @@ async def ask_chatbot_endpoint(
     db: Session = Depends(get_db)
 ):
     if not genai_configured or global_gemini_model is None:
-        print("ERROR: Gemini API not configured or model not loaded.")
+        logging.error("Gemini API not configured or model not loaded.")
         raise HTTPException(status_code=503, detail="AI 서비스가 준비되지 않았습니다. API 키를 확인하세요.")
 
     if not user_query and not image_file:
@@ -301,17 +302,19 @@ async def ask_chatbot_endpoint(
     if image_file:
         image_url_for_db = await save_uploaded_image_file(image_file)
         if not image_url_for_db:
-            print(f"WARNING: User {user_id} uploaded image but failed to save it locally.")
+            logging.warning(f"User {user_id} uploaded image but failed to save it locally.")
             
     try:
         user = get_or_create_user(db, user_id)
+    except HTTPException as e:
+        raise e # get_or_create_user에서 이미 HTTPException을 발생시키므로 다시 발생시킴
     except Exception as e:
+        logging.error(f"Error processing user information: {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=f"사용자 정보를 처리하는 중 오류가 발생했습니다: {type(e).__name__}: {e}")
 
     bot_response_content = ""
     bot_file_path = None
     
-    # 챗봇의 마지막 일반 응답 메시지를 가져옵니다.
     last_bot_general_response_content = None
     try:
         last_general_bot_log = db.query(ChatLog)\
@@ -322,18 +325,15 @@ async def ask_chatbot_endpoint(
                                  .first()
         if last_general_bot_log:
             last_bot_general_response_content = last_general_bot_log.message_content
-            print(f"DEBUG: Last bot general response content: {last_bot_general_response_content[:50]}...")
+            logging.debug(f"Last bot general response content: {last_bot_general_response_content[:50]}...")
     except Exception as e:
-        print(f"WARNING: Could not retrieve last general bot message from DB: {e}")
+        logging.warning(f"Could not retrieve last general bot message from DB: {e}")
 
-    # --- 보고서/엑셀 생성 요청 처리 ---
-    # 1. 명시적으로 '워드' 또는 '엑셀' 키워드가 포함된 보고서 생성 요청
     is_explicit_excel_request = ("엑셀" in user_query or "excel" in user_query) and any(kw in user_query for kw in ["생성", "만들어", "정리", "파일", "줘", "보고서"])
     is_explicit_word_request = ("워드" in user_query or "word" in user_query) and any(kw in user_query for kw in ["생성", "만들어", "파일", "줘", "보고서", "리포트"])
     
-    # 1-1. 명시적인 엑셀 보고서 요청 처리
     if is_explicit_excel_request:
-        print("DEBUG: Caught by explicit Excel report generation condition.")
+        logging.info("Caught by explicit Excel report generation condition.")
         subject_for_report = "농작물"
         if "오이" in user_query: subject_for_report = "오이"
         elif "상추" in user_query: subject_for_report = "상추"
@@ -342,9 +342,8 @@ async def ask_chatbot_endpoint(
         bot_response_content = file_result["message"]
         bot_file_path = file_result["file_path"]
 
-    # 1-2. 명시적인 워드 보고서 요청 처리
     elif is_explicit_word_request:
-        print("DEBUG: Caught by explicit Word report generation condition.")
+        logging.info("Caught by explicit Word report generation condition.")
         subject_for_report = "농작물"
         if "오이" in user_query: subject_for_report = "오이"
         elif "상추" in user_query: subject_for_report = "상추"
@@ -353,14 +352,11 @@ async def ask_chatbot_endpoint(
         bot_response_content = file_result["message"]
         bot_file_path = file_result["file_path"]
         
-    # 2. '보고서' 키워드만 있고 파일 형식이 불분명한 경우 (이전 답변 내용을 기반으로 재확인)
-    # 이 조건은 위 명시적 요청들보다 뒤에 오면서, 동시에 명시적 요청 키워드는 포함하지 않아야 합니다.
-    # 즉, "보고서"나 "report"는 있지만, "워드"도 "엑셀"도 없는 경우.
     elif ("보고서" in user_query or "report" in user_query) and \
-         not ("워드" in user_query or "word" in user_query or "엑셀" in user_query or "excel" in user_query) and \
-         any(kw in user_query for kw in ["파일", "줘", "생성", "만들어", "받을", "원해", "있을까", "보여줘"]):
+          not (is_explicit_word_request or is_explicit_excel_request) and \
+          any(kw in user_query for kw in ["파일", "줘", "생성", "만들어", "받을", "원해", "있을까", "보여줘"]):
         
-        print("DEBUG: Caught by Ambiguous report type condition, offering specific report.")
+        logging.info("Caught by Ambiguous report type condition, offering specific report.")
         
         if last_bot_general_response_content:
             content_preview = last_bot_general_response_content.replace('\n', ' ').strip()[:30] + "..."
@@ -372,9 +368,8 @@ async def ask_chatbot_endpoint(
         else:
             bot_response_content = "**어떤 형식의 보고서를 원하시나요? 워드 파일 보고서 또는 엑셀 파일 보고서 중 선택해주세요.**"
         
-    # --- 일반 챗봇 응답 처리 (보고서 요청이 아닌 경우) ---
     else: 
-        print("DEBUG: Falling back to knowledge base or LLM general response.")
+        logging.info("Falling back to knowledge base or LLM general response.")
         found_in_knowledge_base = False
         for keyword, answer in agricultural_knowledge_base.items():
             if keyword not in ["엑셀 보고서", "워드 보고서"] and keyword in user_query:
@@ -406,32 +401,32 @@ async def ask_chatbot_endpoint(
                             }
                         })
                     except Exception as e:
-                        print(f"ERROR: Failed to read saved image for Gemini (chatbot): {type(e).__name__}: {e}")
+                        logging.error(f"Failed to read saved image for Gemini (chatbot): {type(e).__name__}: {e}")
                 else:
-                    print(f"WARNING: Saved image file not found for Gemini (chatbot): {local_file_path_for_gemini}")
+                    logging.warning(f"Saved image file not found for Gemini (chatbot): {local_file_path_for_gemini}")
                     
             if not parts_list:
                 raise HTTPException(status_code=400, detail="텍스트 메시지나 이미지가 필요합니다.")
 
             contents = [{"role": "user", "parts": parts_list}]
 
-            print(f"DEBUG FastAPI /chatbot/ask: Calling Gemini. user_id={user_id}, image_present={bool(image_file)}, query='{user_query[:50]}...'")
+            logging.info(f"Calling Gemini. user_id={user_id}, image_present={bool(image_file)}, query='{user_query[:50]}...'")
 
             try:
                 llm_response = await asyncio.to_thread(global_gemini_model.generate_content, contents)
                 generated_text = llm_response.text
                 bot_response_content = generated_text.strip()
             except InvalidArgument as e:
-                print(f"ERROR FastAPI /chatbot/ask: Gemini Invalid Argument: {e}. Contents: {contents}")
+                logging.error(f"Gemini Invalid Argument: {e}. Contents: {contents}")
                 raise HTTPException(status_code=400, detail=f"AI 모델에 전달된 인자가 유효하지 않습니다. 상세: {str(e)}")
             except ResourceExhausted as e:
-                print(f"ERROR FastAPI /chatbot/ask: Gemini Resource Exhausted: {e}")
+                logging.error(f"Gemini Resource Exhausted: {e}")
                 raise HTTPException(status_code=429, detail=f"AI 모델 호출 할당량이 소진되었습니다. 잠시 후 다시 시도해주세요. 상세: {str(e)}")
             except GoogleAPIError as e:
-                print(f"ERROR FastAPI /chatbot/ask: Google API Error: {type(e).__name__}: {e}")
+                logging.error(f"Google API Error: {type(e).__name__}: {e}")
                 raise HTTPException(status_code=500, detail=f"Google AI API 통신 중 오류 발생: {str(e)}")
             except Exception as e:
-                print(f"ERROR FastAPI /chatbot/ask: Unexpected error: {type(e).__name__}: {e}")
+                logging.error(f"Unexpected error: {type(e).__name__}: {e}")
                 import traceback
                 traceback.print_exc()
                 bot_response_content = f"죄송합니다. AI 응답 생성 중 오류가 발생했습니다: {str(e)}"
@@ -455,15 +450,14 @@ async def ask_chatbot_endpoint(
 
         bot_response_content = markdown_link_pattern.sub(replace_link_with_html, bot_response_content)
 
-
-    # 3. 사용자 메시지 (및 이미지 URL)를 DB에 기록 (항상 가장 먼저 기록)
+    # 사용자 메시지 (및 이미지 URL)를 DB에 기록 (항상 가장 먼저 기록)
     try:
         user_log = ChatLog(user_id=user_id, message_type="user", message_content=user_query, image_url=image_url_for_db, timestamp=datetime.now())
         db.add(user_log)
         db.commit()
         db.refresh(user_log)
 
-        # 8. 챗봇 응답을 DB에 기록 (bot_response_content가 비어있지 않은 경우에만 기록)
+        # 챗봇 응답을 DB에 기록 (bot_response_content가 비어있지 않은 경우에만 기록)
         if bot_response_content.strip():
             bot_log = ChatLog(user_id=user_id, message_type="bot", 
                               message_content=bot_response_content, 
@@ -475,23 +469,22 @@ async def ask_chatbot_endpoint(
             db.refresh(bot_log)
     except Exception as e:
         db.rollback()
-        print(f"Failed to log messages to DB: {type(e).__name__}: {e}")
+        logging.error(f"Failed to log messages to DB: {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=f"채팅 기록 중 오류 발생: {e}")
 
-    # 9. 클라이언트(Spring Boot)에 반환할 데이터 구성
     return {"response": bot_response_content, "file_path": bot_file_path, "image_url": image_url_for_db}
 
 
 @app.post("/diagnose/plant")
 async def diagnose_plant_with_gemini(request: PlantDiagnosisRequest):
-    print(f"DEBUG FastAPI /diagnose/plant: Request received. user_id={request.user_id}, mime_type={request.mime_type}, prompt='{request.prompt[:50]}...'")
+    logging.info(f"Request received for /diagnose/plant. user_id={request.user_id}, mime_type={request.mime_type}, prompt='{request.prompt[:50]}...'")
 
     if not genai_configured or global_gemini_model is None:
-        print("ERROR: Gemini API not configured or model not loaded.")
+        logging.error("Gemini API not configured or model not loaded.")
         raise HTTPException(status_code=503, detail="AI 서비스가 준비되지 않았습니다. API 키를 확인하세요.")
 
     if not request.image_base64 or not request.mime_type.startswith("image/"):
-        print("ERROR: Invalid image data received for /diagnose/plant. base64 present:", bool(request.image_base64), "mime_type:", request.mime_type)
+        logging.error(f"Invalid image data received for /diagnose/plant. base64 present: {bool(request.image_base64)}, mime_type: {request.mime_type}")
         raise HTTPException(status_code=400, detail="유효한 이미지 파일이 필요합니다.")
         
     try:
@@ -506,30 +499,181 @@ async def diagnose_plant_with_gemini(request: PlantDiagnosisRequest):
         ]
         contents = [{"role": "user", "parts": parts_list}]
 
-        print(f"DEBUG FastAPI /diagnose/plant: Calling Gemini API with contents: {contents}")
+        logging.info(f"Calling Gemini API with contents (diagnose/plant).")
 
-        response = await asyncio.to_thread(global_gemini_model.generate_content, contents)
+        response = await asyncio.to_thread(global_gemini_model.generate_content, contents) # 진단은 gemini-1.5-flash 사용
         
         diagnosis_result_text = response.text
         
-        print(f"DEBUG FastAPI /diagnose/plant: Gemini response for user {request.user_id}: {diagnosis_result_text[:100]}...")
+        logging.info(f"Gemini response for user {request.user_id} (diagnose/plant): {diagnosis_result_text[:100]}...")
 
         return {"response": diagnosis_result_text}
 
     except InvalidArgument as e:
-        print(f"ERROR FastAPI /diagnose/plant: Gemini Invalid Argument: {e}. Contents: {contents}")
+        logging.error(f"Gemini Invalid Argument (diagnose/plant): {e}. Contents: {contents}")
         raise HTTPException(status_code=400, detail=f"AI 모델에 전달된 인자가 유효하지 않습니다. 상세: {str(e)}")
     except ResourceExhausted as e:
-        print(f"ERROR FastAPI /diagnose/plant: Gemini Resource Exhausted: {e}")
+        logging.error(f"Gemini Resource Exhausted (diagnose/plant): {e}")
         raise HTTPException(status_code=429, detail=f"AI 모델 호출 할당량이 소진되었습니다. 잠시 후 다시 시도해주세요. 상세: {str(e)}")
     except GoogleAPIError as e:
-        print(f"ERROR FastAPI /diagnose/plant: Google API Error: {type(e).__name__}: {e}")
+        logging.error(f"Google API Error (diagnose/plant): {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=f"Google AI API 통신 중 오류 발생: {str(e)}")
     except Exception as e:
-        print(f"ERROR FastAPI /diagnose/plant: Unexpected error during Gemini call: {type(e).__name__}: {e}")
+        logging.error(f"Unexpected error during Gemini call (diagnose/plant): {type(e).__name__}: {e}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"식물 진단 중 오류 발생: {str(e)}. 상세 오류: {type(e).__name__}")
+
+
+@app.post("/api/recommend-crop")
+async def recommend_crop(data: CropRecommendationRequest):
+    """
+    수확 희망 시기와 재배 장소에 따라 작물을 추천합니다.
+    응답은 JSON 배열 형식으로 작물 정보(이름, 화분 크기, 물의 양, 토양 유형, 난이도)를 반환합니다.
+    """
+    if not genai_configured or global_gemini_flash_model is None:
+        logging.error("Gemini API not configured or global_gemini_flash_model not loaded.")
+        raise HTTPException(status_code=503, detail="AI 서비스가 준비되지 않았습니다. API 키를 확인하세요.")
+
+    harvest = data.harvest
+    environment = data.environment
+
+    prompt_text = (
+        f"수확 희망 시기: {harvest}, 재배 장소: {environment}에 적합한 작물을 추천하세요."
+        " 각 작물에 대해 이름, 화분 크기, 물의 양, 토양 유형, 재배 난이도를 포함합니다."
+    )
+
+    contents = [
+        {
+            "role": "user",
+            "parts": [
+                {"text": prompt_text}
+            ]
+        }
+    ]
+    
+    generation_config = {
+        "response_mime_type": "application/json",
+        "response_schema": {
+            "type": "ARRAY",
+            "items": {
+                "type": "OBJECT",
+                "properties": {
+                    "name": {"type": "STRING", "description": "작물 이름"},
+                    "pot_size": {"type": "STRING", "description": "권장 화분 크기"},
+                    "water_amount": {"type": "STRING", "description": "권장 물의 양"},
+                    "soil_type": {"type": "STRING", "description": "권장 토양 유형"},
+                    "difficulty": {"type": "STRING", "description": "재배 난이도 (예: '하', '중', '상')"}
+                },
+                "required": ["name", "pot_size", "water_amount", "soil_type", "difficulty"]
+            }
+        },
+        "temperature": 0.3,
+        "max_output_tokens": 512,
+        "top_p": 0.8,
+        "top_k": 40
+    }
+
+    try:
+        # gemini-2.0-flash 모델을 사용하여 generate_content 호출
+        response = await asyncio.to_thread(
+            global_gemini_flash_model.generate_content, 
+            contents,
+            generation_config=generation_config
+        )
+        
+        # 모델 응답에서 text 필드를 직접 추출
+        output_json_string = response.text 
+        crops = json.loads(output_json_string)
+
+        if not isinstance(crops, list):
+            raise TypeError("API 응답이 예상된 JSON 배열 형식이 아닙니다.")
+
+        logging.info(f"Gemini API 응답 (recommend-crop): {json.dumps(crops, ensure_ascii=False, indent=2)}")
+        return crops
+
+    except (InvalidArgument, GoogleAPIError, ResourceExhausted) as e:
+        logging.error(f"Gemini API 호출 실패 (recommend-crop): {e}")
+        raise HTTPException(status_code=500, detail=f"API 호출 실패: {e}")
+    except json.JSONDecodeError as e:
+        logging.error(f"API 응답 JSON 디코딩 실패 (recommend-crop): {e}")
+        raise HTTPException(status_code=500, detail=f"API 응답 JSON 디코딩 실패: {e}. Raw: {output_json_string}")
+    except TypeError as e:
+        logging.error(f"API 응답 형식 오류 (recommend-crop): {e}")
+        raise HTTPException(status_code=500, detail=f"API 응답 형식 오류: {e}")
+    except Exception as e:
+        logging.error(f"알 수 없는 오류 발생 (recommend-crop): {e}")
+        raise HTTPException(status_code=500, detail=f"알 수 없는 오류: {e}")
+
+
+@app.post("/api/crop-guide")
+async def crop_guide(data: CropGuideRequest):
+    """
+    특정 작물에 대한 재배 가이드를 생성합니다.
+    응답은 JSON 배열 형식으로 단계별 가이드를 반환합니다.
+    """
+    if not genai_configured or global_gemini_flash_model is None:
+        logging.error("Gemini API not configured or global_gemini_flash_model not loaded.")
+        raise HTTPException(status_code=503, detail="AI 서비스가 준비되지 않았습니다. API 키를 확인하세요.")
+
+    crop_name = data.crop_name
+
+    if not crop_name:
+        raise HTTPException(status_code=400, detail="작물 이름이 필요합니다.")
+
+    prompt_text = f"작물 '{crop_name}'의 재배 가이드를 단계별로 상세히 설명하세요. 각 단계는 짧고 명확하게 설명하고, 다음 JSON 배열 형식으로 출력하세요: [\"1. 첫 번째 단계 설명\", \"2. 두 번째 단계 설명\", ...]. 설명은 포함하지 마세요."
+
+    contents = [
+        {
+            "role": "user",
+            "parts": [
+                {"text": prompt_text}
+            ]
+        }
+    ]
+
+    generation_config = {
+        "response_mime_type": "application/json",
+        "response_schema": {
+            "type": "ARRAY",
+            "items": {"type": "STRING"}
+        },
+        "temperature": 0.5,
+        "max_output_tokens": 1024,
+        "top_p": 0.8,
+        "top_k": 40
+    }
+
+    try:
+        # gemini-2.0-flash 모델을 사용하여 generate_content 호출
+        response = await asyncio.to_thread(
+            global_gemini_flash_model.generate_content, 
+            contents,
+            generation_config=generation_config
+        )
+        
+        # 모델 응답에서 text 필드를 직접 추출
+        output_json_string = response.text
+        guide_steps = json.loads(output_json_string)
+
+        if not isinstance(guide_steps, list):
+            raise TypeError("가이드 단계가 배열 형식이 아닙니다.")
+
+        logging.info(f"Gemini API 응답 (crop-guide): {json.dumps(guide_steps, ensure_ascii=False, indent=2)}")
+        return guide_steps
+
+    except (InvalidArgument, GoogleAPIError, ResourceExhausted) as e:
+        logging.error(f"Gemini API 호출 실패 (crop-guide): {e}")
+        raise HTTPException(status_code=500, detail=f"API 호출 실패: {e}")
+    except json.JSONDecodeError as e:
+        logging.error(f"API 응답 JSON 디코딩 실패 (crop-guide): {e}")
+        raise HTTPException(status_code=500, detail=f"API 응답 JSON 디코딩 실패: {e}. Raw: {output_json_string}")
+    except TypeError as e:
+        logging.error(f"가이드 단계 형식 오류 (crop-guide): {e}")
+        raise HTTPException(status_code=500, detail=f"가이드 단계 형식 오류: {e}")
+    except Exception as e:
+        logging.error(f"알 수 없는 오류 발생 (crop-guide): {e}")
+        raise HTTPException(status_code=500, detail=f"알 수 없는 오류: {e}")
 
 
 @app.get("/files/{path_in_uploads_or_reports:path}")
@@ -591,7 +735,7 @@ async def get_chat_history(user_id: int, db: Session = Depends(get_db)):
 
         return history_list
     except Exception as e:
-        print(f"Error fetching chat history for user_id {user_id}: {type(e).__name__}: {e}")
+        logging.error(f"Error fetching chat history for user_id {user_id}: {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=f"이전 질문 내역을 불러오는 중 오류가 발생했습니다: {e}")
 
 
@@ -600,7 +744,7 @@ if __name__ == "__main__":
     os.makedirs(REPORT_DIR, exist_ok=True)
     
     Base.metadata.create_all(bind=engine) 
-    print("Database tables created/checked.")
+    logging.info("Database tables created/checked.")
 
     db = SessionLocal()
     try:
