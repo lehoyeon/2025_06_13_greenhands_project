@@ -51,3 +51,10 @@ logging:
   level:
     org.springframework.security: DEBUG # Spring Security 로깅 레벨을 DEBUG로 설정
     org.springframework.web: DEBUG
+
+# === 새로 추가될 파일 업로드 디렉토리 설정 ===
+file:
+  upload-dir: ./uploads # 프로젝트 루트 디렉토리에 'uploads' 폴더를 생성하고 거기에 파일을 저장합니다.
+    # Windows의 경우 C:/uploads, Linux/macOS의 경우 /home/user/uploads 등 절대 경로도 가능합니다.
+  # 하지만 상대 경로 `./uploads`는 프로젝트 실행 위치에 따라 달라질 수 있으니 주의하세요.
+# ==========================================

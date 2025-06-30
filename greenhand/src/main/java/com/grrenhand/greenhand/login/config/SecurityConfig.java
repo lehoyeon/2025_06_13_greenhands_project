@@ -28,56 +28,55 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // 개발 편의를 위해 CSRF 비활성화 (운영 시에는 활성화 권장)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 // static 리소스 허용
                                 "/css/**", // /resources/static/css/ 아래 모든 파일
                                 "/js/**",  // /resources/static/js/ 아래 모든 파일
-                                // HTML 파일들 직접 접근 허용 (스크린샷 기반)
+                                "/images/**", // /resources/static/images/ 아래 모든 파일 (필요시)
+                                // HTML 파일들 직접 접근 허용
                                 "/", // 루트 경로 (보통 index.html 또는 리다이렉트)
                                 "/1.html",
                                 "/3.html",
                                 "/chatbot.html",
                                 "/crop_plus.html",
                                 "/img.html",
-                                "/login.html",
                                 "/main.html",
-                                "/signup.html",
-                                "/images/**", // 만약 images 폴더가 static 아래 있다면 추가 (스크린샷에 없지만 기존 설정에 있었음)
-
+                                "/login.html", // 로그인 페이지
+                                "/signup.html", // <--- 이 부분이 수정되었습니다. 회원가입 페이지 경로
                                 // 기존 설정에서 유지된 경로
-                                "/register", // 회원가입 처리 URL
-                                "/api/find-id",
-                                "/api/reset-password",
+                                "/register", // 회원가입 처리 URL (POST)
+                                "/api/find-id", // 아이디 찾기 API (POST)
+                                "/api/reset-password", // 비밀번호 재설정 API (POST)
                                 "/oauth2/**" // OAuth2 로그인 관련 URL
-                        ).permitAll()
+                        ).permitAll() // 위에 명시된 경로들은 모두 인증 없이 접근 허용
                         // 특정 API는 인증된 사용자(USER 역할)만 접근 가능
                         .requestMatchers("/api/main/user/me").hasRole("USER")
                         .requestMatchers("/api/chatbot/**").hasRole("USER")
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .formLogin(form -> form
-                        .loginPage("/login.html") // 변경된 로그인 페이지 경로
-                        .loginProcessingUrl("/do-login")
-                        .defaultSuccessUrl("/main.html", true) // 변경된 메인 페이지 경로
-                        .failureUrl("/login.html?error")
-                        .permitAll()
+                        .loginPage("/login.html") // 로그인 페이지 지정
+                        .loginProcessingUrl("/do-login") // 로그인 처리 URL
+                        .defaultSuccessUrl("/main.html", true) // 로그인 성공 시 리다이렉트할 기본 URL
+                        .failureUrl("/login.html?error") // 로그인 실패 시 리다이렉트할 URL
+                        .permitAll() // 로그인 관련 페이지는 인증 없이 접근 허용
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login.html?logout") // 변경된 로그인 페이지 경로
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
+                        .logoutUrl("/logout") // 로그아웃 처리 URL
+                        .logoutSuccessUrl("/login.html?logout") // 로그아웃 성공 시 리다이렉트할 URL
+                        .invalidateHttpSession(true) // 세션 무효화
+                        .deleteCookies("JSESSIONID") // JSESSIONID 쿠키 삭제
+                        .permitAll() // 로그아웃 관련 페이지는 인증 없이 접근 허용
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/login.html") // 변경된 로그인 페이지 경로
+                        .loginPage("/login.html") // OAuth2 로그인 페이지 지정 (일반 로그인 페이지와 동일)
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
+                                .userService(customOAuth2UserService) // 사용자 정보 서비스 설정
                         )
-                        .defaultSuccessUrl("/main.html", true) // 변경된 메인 페이지 경로
-                        .failureUrl("/login.html?oauth2Error")
+                        .defaultSuccessUrl("/main.html", true) // OAuth2 로그인 성공 시 리다이렉트할 기본 URL
+                        .failureUrl("/login.html?oauth2Error") // OAuth2 로그인 실패 시 리다이렉트할 URL
                 );
 
         return http.build();
@@ -85,6 +84,6 @@ public class SecurityConfig {
 
     @Bean
     public RestTemplate restTemplate() {
-        return new RestTemplate();
+        return new RestTemplate(); // RestTemplate 빈 등록
     }
 }

@@ -32,7 +32,7 @@
                 <div class="card-content horizontal-layout">
                     <div class="recommended-crops-box">
                         <div class="options-area">
-                            <label>수확 희망 시기</label>
+                            <label for="harvest-select">수확 희망 시기</label>
                             <select id="harvest-select">
                                 <option value="">선택</option>
                                 <option value="3월">3월</option>
@@ -41,7 +41,7 @@
                                 <option value="6월">6월</option>
                                 <option value="7월">7월</option>
                             </select>
-                            <label>재배 장소</label>
+                            <label for="env-select">재배 장소</label>
                             <select id="env-select">
                                 <option value="">선택</option>
                                 <option value="실내">실내</option>
@@ -92,93 +92,6 @@
     </div>
 </div>
 
-<script>
-    const recommendBtn = document.getElementById("recommend-btn");
-    const cropsContainer = document.getElementById("recommended-crops");
-    const detailBox = document.getElementById("selected-crop-details");
-    const guideModal = document.getElementById("guide-modal");
-    const guideSteps = document.getElementById("guide-steps");
-
-    recommendBtn.addEventListener("click", async () => {
-      const harvest = document.getElementById("harvest-select").value;
-      const env = document.getElementById("env-select").value;
-
-      if (!harvest || !env) {
-        alert("수확 희망 시기와 재배 장소를 선택해주세요.");
-        return;
-      }
-
-      cropsContainer.innerHTML = "불러오는 중...";
-
-      try {
-        const response = await fetch("http://localhost:8000/api/recommend-crop", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ harvest, environment: env }),
-        });
-
-        const crops = await response.json();
-
-        if (!Array.isArray(crops)) {
-          cropsContainer.innerHTML = "추천 작물 형식 오류.";
-          return;
-        }
-
-        cropsContainer.innerHTML = "";
-
-        crops.forEach((crop, index) => {
-          const btn = document.createElement("button");
-          btn.textContent = crop.name;
-          btn.onclick = () => showDetails(crop);
-          cropsContainer.appendChild(btn);
-        });
-      } catch (err) {
-        console.error(err);
-        cropsContainer.innerHTML = "추천 실패.";
-      }
-    });
-
-    function showDetails(crop) {
-      detailBox.style.display = "block";
-      document.getElementById("detail-name").textContent = crop.name;
-      document.getElementById("detail-pot-size").textContent = crop.pot_size;
-      document.getElementById("detail-water-amount").textContent = crop.water_amount;
-      document.getElementById("detail-soil-type").textContent = crop.soil_type;
-
-      const difficultyMap = { 상: "#f44336", 중: "#ffeb3b", 하: "#2196f3" };
-      const diff = crop.difficulty;
-
-      document.getElementById("detail-difficulty-text").textContent = diff;
-      const bar = document.getElementById("detail-progress-bar");
-      bar.style.width = "100%";
-      bar.style.backgroundColor = difficultyMap[diff] || "#ccc";
-    }
-
-    document.getElementById("guide-btn").addEventListener("click", () => {
-      const steps = [
-        "1. 품종 선택",
-        "2. 파종 및 모종 준비 (실내/실외)",
-        "3. 정식하기",
-        "4. 물, 햇빛, 온도 관리"
-      ];
-
-      guideSteps.innerHTML = "";
-      steps.forEach(step => {
-        const li = document.createElement("li");
-        li.textContent = step;
-        guideSteps.appendChild(li);
-      });
-
-      guideModal.style.display = "flex";
-    });
-
-    function closeGuideModal() {
-      guideModal.style.display = "none";
-    }
-
-    function deleteSelectedCrops() {
-      alert("선택된 작물을 삭제합니다 (기능 예정)");
-    }
-</script>
+<script src="/js/crop_plus.js"></script>
 </body>
 </html>
