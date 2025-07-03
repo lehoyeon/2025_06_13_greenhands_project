@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (params.has('logout')) {
         if (logoutMessage) logoutMessage.style.display = 'block';
+
+        // ----------------------------------------------------
+        // ★★★ 이 부분에 챗봇 세션 기록 삭제 로직을 추가했습니다. ★★★
+        sessionStorage.removeItem('chatHistory');
+        console.log("[Chat History] 로그아웃 URL 파라미터 감지, 세션 스토리지 대화 기록 삭제됨.");
+        // ----------------------------------------------------
+
     } else {
         if (logoutMessage) logoutMessage.style.display = 'none';
     }

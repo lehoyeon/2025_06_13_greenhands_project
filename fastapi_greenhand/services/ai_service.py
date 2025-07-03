@@ -220,15 +220,17 @@ async def get_gemini_plant_diagnosis(image_base64: str, mime_type: str, prompt: 
         raise HTTPException(status_code=500, detail=f"식물 진단 중 오류 발생: {str(e)}. 상세 오류: {type(e).__name__}")
 
 
-async def get_gemini_crop_recommendation(harvest: str, environment: str) -> list:
-    """수확 희망 시기와 재배 장소에 따라 작물을 추천합니다. JSON 배열 형식으로 작물 정보를 반환합니다."""
+async def get_gemini_crop_recommendation(environment: str, duration: str, region: str) -> list: # <-- 이렇게 변경합니다.
+    """환경, 재배 기간, 지역에 따라 작물을 추천합니다. JSON 배열 형식으로 작물 정보를 반환합니다."""
     if not genai_configured or global_gemini_flash_model is None:
         logging.error("Gemini API가 구성되지 않았거나 global_gemini_flash_model이 로드되지 않았습니다.")
         raise HTTPException(status_code=503, detail="AI 서비스가 준비되지 않았습니다. API 키를 확인하세요.")
 
+    # 프롬프트도 변경된 인수에 맞춰 조정
     prompt_text = (
-        f"수확 희망 시기: {harvest}, 재배 장소: {environment}에 적합한 작물을 추천하세요."
+        f"재배 환경: {environment}, 재배 기간: {duration}, 지역: {region}에 적합한 작물을 추천하세요."
         " 각 작물에 대해 이름, 화분 크기, 물의 양, 토양 유형, 재배 난이도를 포함합니다."
+        " 한국어로 답변해주세요." # 한국어 답변을 명시적으로 요청
     )
 
     contents = [
@@ -282,7 +284,7 @@ async def get_gemini_crop_recommendation(harvest: str, environment: str) -> list
         logging.error(f"Gemini API 호출 실패 (작물 추천): {e}")
         raise HTTPException(status_code=500, detail=f"API 호출 실패: {e}")
     except json.JSONDecodeError as e:
-        logging.error(f"API 응답 JSON 디코딩 실패 (작물 추천): {e}")
+        logging.error(f"API 응답 JSON 디코딩 실패 (작물 추천): {e}. 원시 응답: {output_json_string}")
         raise HTTPException(status_code=500, detail=f"API 응답 JSON 디코딩 실패: {e}. 원시 응답: {output_json_string}")
     except TypeError as e:
         logging.error(f"API 응답 형식 오류 (작물 추천): {e}")

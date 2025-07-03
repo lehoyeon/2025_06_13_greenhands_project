@@ -1,5 +1,143 @@
-# knowledge_base.py
-# --- 지식 데이터베이스 (농업 정보) ---
+# knowledge_base.py (find_recommended_crops는 이제 ai_service에서 직접 사용하지 않지만, 그대로 유지해도 됨)
+import json
+from typing import List, Dict, Any, Union, Optional 
+
+# ★★★ CROPS_DATA는 이제 AI 모델에게 요청할 JSON 형식의 예시 및 가이드에 사용될 뿐,
+# 직접적인 추천 데이터 소스로 사용되지 않습니다. 하지만 get_crop_by_id는 여전히 사용됩니다. ★★★
+CROPS_DATA = [
+    {
+        "id": "lettuce",
+        "name": "상추",
+        "cultivation_duration": "short", 
+        "cultivation_location": ["indoor", "outdoor"],
+        "suitable_regions": ["seoul", "gyeonggi", "chungbuk", "all"],
+        "thumbnail_image": "/images/lettuce_thumbnail.png",
+        "initial_preparations": ["씨앗 또는 모종", "지름 10cm 이상 화분", "배수가 잘 되는 상토", "물뿌리개"],
+        "difficulty": "하",
+        "pot_size": "10cm 이상",
+        "water_amount": "매일 (흙 마르지 않게)",
+        "soil_type": "배수 좋은 토양",
+        "pest_control": "진딧물 발생 시 친환경 살충제",
+        "detailed_guide": { 
+            "step1": "씨앗 심기: 씨앗을 흙에 0.5cm 깊이로 심고 흙으로 덮어줍니다.",
+            "step2": "물 주기: 흙이 마르지 않게 매일 충분히 물을 줍니다. 과습은 피해주세요.",
+            "step3": "햇빛: 하루 4~6시간 이상 햇빛을 볼 수 있는 곳에 둡니다 (반그늘도 가능).",
+            "step4": "수확: 잎이 10cm 정도 자라면 바깥 잎부터 수확합니다."
+        }
+    },
+    {
+        "id": "radish",
+        "name": "무",
+        "cultivation_duration": "medium",
+        "cultivation_location": ["outdoor"],
+        "suitable_regions": ["gangwon", "chungnam", "gyeongbuk", "all"],
+        "thumbnail_image": "/images/radish_thumbnail.png",
+        "initial_preparations": ["무 씨앗", "깊이 20cm 이상 텃밭 또는 큰 화분", "비옥하고 부드러운 흙"],
+        "difficulty": "중",
+        "pot_size": "20cm 이상",
+        "water_amount": "주 2~3회 (흙 마르면)",
+        "soil_type": "부드럽고 비옥한 토양",
+        "pest_control": "배추흰나비 애벌레 주의",
+        "detailed_guide": [ 
+            "1. 파종: 씨앗을 2~3cm 간격으로 심고 얇게 흙을 덮습니다.",
+            "2. 물 주기: 흙이 촉촉하도록 유지하되 과습은 피합니다.",
+            "3. 솎아주기: 본잎이 2~3장 나오면 간격을 넓혀줍니다.",
+            "4. 수확: 파종 후 2~3개월 뒤 뿌리가 충분히 자라면 수확합니다."
+        ]
+    },
+    {
+        "id": "tomato",
+        "name": "방울토마토",
+        "cultivation_duration": "long",
+        "cultivation_location": ["outdoor", "indoor"],
+        "suitable_regions": ["seoul", "gyeonggi", "jeju", "all"],
+        "thumbnail_image": "/images/tomato_thumbnail.png",
+        "initial_preparations": ["모종", "큰 화분/텃밭", "지지대", "퇴비"],
+        "difficulty": "중",
+        "pot_size": "25cm 이상",
+        "water_amount": "매일 (열매 맺을 시기)",
+        "soil_type": "영양분 풍부한 토양",
+        "pest_control": "진딧물, 응애, 잿빛곰팡이병",
+        "detailed_guide": [
+            "1. 모종 심기: 햇빛이 잘 드는 곳에 모종을 심고 지지대를 세웁니다.",
+            "2. 물 주기: 흙이 마르지 않게 꾸준히 물을 줍니다.",
+            "3. 순지르기: 겨드랑이 순을 제거하여 영양분 분산을 막습니다.",
+            "4. 수확: 열매가 빨갛게 익으면 수확합니다."
+        ]
+    },
+    {
+        "id": "basil",
+        "name": "바질",
+        "cultivation_duration": "short",
+        "cultivation_location": ["indoor", "outdoor"],
+        "suitable_regions": ["seoul", "all"],
+        "thumbnail_image": "/images/basil_thumbnail.png",
+        "initial_preparations": ["씨앗", "작은 화분", "배수 좋은 흙"],
+        "difficulty": "하",
+        "pot_size": "10cm 이상",
+        "water_amount": "2~3일에 한 번",
+        "soil_type": "약간 습한 토양",
+        "pest_control": "응애, 잎마름병",
+        "detailed_guide": [
+            "1. 파종: 씨앗을 흙에 흩뿌리고 얇게 흙을 덮습니다.",
+            "2. 물 주기: 흙이 마르면 바로 물을 줍니다.",
+            "3. 햇빛: 햇빛이 잘 드는 곳에 둡니다 (반그늘도 가능).",
+            "4. 수확: 잎이 어느 정도 자라면 필요한 만큼 따서 사용합니다."
+        ]
+    },
+    {
+        "id": "potato",
+        "name": "감자",
+        "cultivation_duration": "medium",
+        "cultivation_location": ["outdoor"],
+        "suitable_regions": ["gangwon", "jeonbuk", "all"],
+        "thumbnail_image": "/images/potato_thumbnail.png",
+        "initial_preparations": ["씨감자", "텃밭/큰 화분", "거름"],
+        "difficulty": "중",
+        "pot_size": "깊이 30cm 이상",
+        "water_amount": "주 1~2회",
+        "soil_type": "배수 좋은 사질토",
+        "pest_control": "감자역병, 잎말이병",
+        "detailed_guide": [
+            "1. 씨감자 준비: 싹이 난 씨감자를 준비합니다.",
+            "2. 심기: 싹이 위로 오도록 흙에 심습니다.",
+            "3. 흙 덮어주기: 줄기가 자라면 흙으로 덮어줍니다.",
+            "4. 수확: 잎이 시들기 시작하면 수확합니다."
+        ]
+    }
+]
+
+# ★★★ 이 함수는 이제 ai_service.py에서 직접 사용되지 않습니다.
+# 하지만 다른 곳에서 사용될 수 있으므로 일단 유지합니다. ★★★
+def get_all_crops() -> List[Dict[str, Any]]:
+    """모든 작물 데이터를 반환합니다."""
+    return CROPS_DATA
+
+def get_crop_by_id(crop_id: str) -> Optional[Dict[str, Any]]:
+    """주어진 ID에 해당하는 작물 데이터를 반환합니다."""
+    for crop in CROPS_DATA:
+        if crop['id'] == crop_id:
+            return crop
+    return None
+
+def find_recommended_crops(duration: str, environment: str, region: str, limit: int = 5) -> List[Dict[str, Any]]:
+    """주어진 조건에 맞는 작물을 추천합니다. (이제 ai_service에서는 사용되지 않음)"""
+    recommended = []
+    for crop in CROPS_DATA:
+        env_match = environment in crop['cultivation_location']
+        duration_match = crop['cultivation_duration'] == duration
+        region_match = (region == 'all') or \
+                    (region in crop['suitable_regions']) or \
+                    ('all' in crop['suitable_regions'])
+
+        if env_match and duration_match and region_match:
+            recommended.append(crop)
+            if len(recommended) >= limit:
+                break
+    return recommended
+
+# --- 기존 지식 데이터베이스 (챗봇용) ---
+# 이 부분은 챗봇의 일반적인 응답에 사용되므로 그대로 유지합니다.
 agricultural_knowledge_base = {
     "상추 재배 방법": {
         "summary": "상추는 서늘하고 햇볕이 잘 드는 곳에서 잘 자라며, 꾸준한 물 관리가 중요합니다.",

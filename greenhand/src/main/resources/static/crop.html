@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>초록손 - 작물 추천</title>
+    <link rel="stylesheet" href="/css/crop.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="logout-form-top-right">
+        <form action="/logout" method="post">
+            <button type="submit" class="logout-button">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="nav-bar">
+        <a href="main.html">내 농장</a>
+        <a href="crop.html">작물 추가</a>
+        <a href="3.html">재배 가이드</a> <a href="img.html">작물 진단</a>
+        <a href="chatbot.html">챗봇 상담</a>
+    </div>
+
+    <div class="main-content-panel">
+        <section class="recommendation-section">
+            <div class="card-group">
+                <div class="card-header">작물 추천받기</div>
+                <div class="card-content horizontal-layout">
+                    <div class="recommended-crops-box">
+                        <div class="options-area">
+                            <label for="cultivation-duration-select">재배 기간</label>
+                            <select id="cultivation-duration-select">
+                                <option value="">선택</option>
+                                <option value="short">1개월 미만</option>
+                                <option value="medium">1~3개월</option>
+                                <option value="long">3~6개월</option>
+                                <option value="very_long">6개월 이상</option>
+                            </select>
+
+                            <label for="env-select">재배 장소</label>
+                            <select id="env-select">
+                                <option value="">선택</option>
+                                <option value="indoor">실내</option> <option value="outdoor">실외</option> </select>
+
+                            <label for="region-select">지역</label>
+                            <select id="region-select">
+                                <option value="">선택</option>
+                                <option value="seoul">서울특별시</option>
+                                <option value="busan">부산광역시</option>
+                                <option value="daegu">대구광역시</option>
+                                <option value="incheon">인천광역시</option>
+                                <option value="gwangju">광주광역시</option>
+                                <option value="daejeon">대전광역시</option>
+                                <option value="ulsan">울산광역시</option>
+                                <option value="sejong">세종특별자치시</option>
+                                <option value="gyeonggi">경기도</option>
+                                <option value="gangwon">강원특별자치도</option>
+                                <option value="chungbuk">충청북도</option>
+                                <option value="chungnam">충청남도</option>
+                                <option value="jeonbuk">전북특별자치도</option>
+                                <option value="jeonnam">전라남도</option>
+                                <option value="gyeongbuk">경상북도</option>
+                                <option value="gyeongnam">경상남도</option>
+                                <option value="jeju">제주특별자치도</option>
+                                <option value="all">전국 (공통)</option>
+                            </select>
+
+                            <button class="btn" id="recommend-btn">+작물추천</button>
+                        </div>
+                        <div id="recommended-crops" class="recommended-crops-grid">
+                        </div>
+                    </div>
+
+                    <div class="crop-details-box" id="selected-crop-details" style="display:none;">
+                        <h4><span id="detail-name"></span> 작물 정보</h4>
+                        <p><strong>처음에 준비해야 할 것들:</strong></p>
+                        <ul id="detail-preparations">
+                        </ul>
+                        <p><strong>키우는 난이도:</strong>
+                            <span id="detail-difficulty-text"></span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="detail-progress-bar"></div>
+                        </div>
+                        </p>
+                        <p><strong>적정 화분 크기:</strong> <span id="detail-pot-size"></span></p>
+                        <p><strong>적정 물 주기:</strong> <span id="detail-water-amount"></span></p>
+                        <p><strong>적정 토양:</strong> <span id="detail-soil-type"></span></p>
+                        <p><strong>병충해 정보:</strong> <span id="detail-pest-control"></span></p> <button class="btn" id="add-to-cultivation-list-btn">재배 리스트에 추가</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mycrops-panel">
+            <div class="card-group">
+                <div class="card-header">재배 리스트</div>
+                <div class="card-content">
+                    <ul class="crop-list" id="cultivation-list">
+                    </ul>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" id="delete-all-cultivated-crops-btn">전체 삭제</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div id="guide-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeGuideModal()">&times;</span>
+        <h3 id="modal-guide-title">재배 가이드</h3>
+        <div id="guide-content">
+        </div>
+        <button class="btn" id="add-to-main-btn">나의 농장에 작물 등록 (별칭)</button>
+    </div>
+</div>
+
+<div id="alias-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeAliasModal()">&times;</span>
+        <h3>작물 별칭 입력</h3>
+        <p>어떤 작물에 대한 별칭을 만드시겠습니까? (<span id="alias-for-crop-name"></span>)</p>
+        <input type="text" id="crop-alias-input" placeholder="별칭을 입력해주세요 (예: 우리집 상추)">
+        <button class="btn" id="confirm-alias-btn">등록</button>
+    </div>
+</div>
+
+<script src="js/crop.js"></script>
+</body>
+</html>

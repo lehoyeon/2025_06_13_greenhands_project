@@ -37,7 +37,6 @@ public class SecurityConfig {
                                 "/images/**", // /resources/static/images/ 아래 모든 파일 (필요시)
                                 // HTML 파일들 직접 접근 허용
                                 "/", // 루트 경로 (보통 index.html 또는 리다이렉트)
-                                "/1.html",
                                 "/3.html",
                                 "/chatbot.html",
                                 "/crop_plus.html",

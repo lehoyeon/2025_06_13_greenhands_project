@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>초록손 - 내 농장 (메인)</title>
-    <!-- 기존 style.css 대신 main.css 링크로 변경 (상대 경로) -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
-    <!-- 챗봇 관련 CSS 추가 -->
     <link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
@@ -27,11 +25,10 @@
         </button>
         <div class="nav-links-container" id="navLinksContainer">
             <a href="main.html" class="active">내 농장</a>
-            <a href="crop_plus.html">작물 추가</a>
+            <a href="crop.html">작물 추가</a>
             <a href="3.html">재배 가이드</a>
             <a href="img.html">작물 진단</a>
-            <!-- 챗봇 상담 링크를 이제 페이지 이동 대신 모달을 열도록 수정 -->
-            <a href="#" id="chatbotNavLink">챗봇 상담</a>
+            <a href="chatbot.html" id="chatbotNavLink">챗봇 상담</a>
         </div>
     </div>
 
@@ -72,20 +69,17 @@
     </div>
 </div>
 
-<!-- 챗봇 아이콘 (플로팅 버튼) -->
 <div class="chatbot-floating-icon" id="chatbotFloatingIcon">
     <i class="material-icons">chat</i>
 </div>
 
-<!-- 챗봇 대화창 컨테이너 -->
 <div class="chatbot-modal-container" id="chatbotModalContainer">
     <div class="chatbot-modal-content">
-        <!-- 이곳에 기존 chatbot.html의 section#chatbot-panel 안의 모든 내용을 복사하여 붙여넣으세요. -->
         <section id="chatbot-panel">
             <div class="card">
                 <div class="card-header">
                     <span id="chatbot-header-title">💬 AI 챗봇 농업 상담 💬</span>
-                    <button class="close-chatbot-modal" id="closeChatbotModal">&times;</button> <!-- 닫기 버튼 추가 -->
+                    <button class="close-chatbot-modal" id="closeChatbotModal">&times;</button>
                 </div>
                 <div class="card-content">
                     <div id="chat-history">
@@ -105,15 +99,12 @@
                         <button id="send-chat-message">전송</button>
                     </div>
                     <button class="btn" style="width: 100%; margin-top: 10px;" id="show-history-button">이전 질문 내역 확인</button>
-                    <!-- "내 농장으로 돌아가기" 버튼은 이제 필요 없거나, 닫기 버튼으로 대체됩니다. -->
-                    <!-- <button class="btn" style="width: 100%; margin-top: 20px;" onclick="window.location.href='../main.html'">내 농장으로 돌아가기</button> -->
                 </div>
             </div>
         </section>
     </div>
 </div>
 
-<!-- 이전 질문 내역 모달은 그대로 유지 (main.html에 그대로 삽입) -->
 <div id="history-modal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="closeHistoryModal()">&times;</span>
@@ -125,9 +116,8 @@
     </div>
 </div>
 
-<!-- 기존 script.js 대신 main.js 링크로 변경 (상대 경로) -->
 <script src="js/main.js"></script>
-<!-- 챗봇 관련 JavaScript 파일 추가 (main.js 다음에 위치하는 것이 좋습니다.) -->
-<script src="js/chatbot.js"></script>
+<script src="js/chatbot/chatbot_core.js"></script>
+<script src="js/chatbot/floating_chatbot.js"></script>
 </body>
 </html>

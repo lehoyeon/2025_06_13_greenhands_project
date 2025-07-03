@@ -1,3 +1,5 @@
+/* css/chatbot.css */
+
 body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4f7f6; display: flex; flex-direction: column; min-height: 100vh; }
 .app-container { max-width: 1200px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); overflow: hidden; display: flex; flex-direction: column; width: 100%; }
 .header { background-color: #4CAF50; color: white; padding: 15px 20px; text-align: center; font-size: 24px; font-weight: 700; }
@@ -13,7 +15,18 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
 .card-content { padding: 20px; }
 
 /* 챗봇 스타일 */
-#chat-history { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fcfcfc; display: flex; flex-direction: column; }
+#chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fcfcfc;
+    display: flex;
+    flex-direction: column;
+}
+
 .chat-message { display: flex; margin-bottom: 10px; align-items: flex-end; }
 .chat-message.user { justify-content: flex-end; }
 .chat-message.bot { justify-content: flex-start; }
@@ -25,30 +38,30 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
 .chat-message.bot .message-info { justify-content: flex-start; margin-left: 10px; }
 .message-sender { font-weight: bold; margin-right: 5px; }
 
-.chat-input-container { /* 기존 스타일 */
+.chat-input-container {
     display: flex;
-    gap: 10px; /* 기존 간격 유지 */
+    gap: 10px;
     margin-top: 20px;
-    align-items: center; /* 추가: 세로 중앙 정렬 */
+    align-items: center;
 }
 #chat-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 20px; font-size: 16px; }
 #send-chat-message { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; }
 #send-chat-message:hover { background-color: #45a049; }
 
-/* --- 이미지 업로드 버튼 스타일 추가 --- */
+/* 이미지 업로드 버튼 스타일 */
 .icon-button {
     background: none;
     border: none;
     cursor: pointer;
     padding: 8px;
-    color: #4CAF50; /* 아이콘 색상 */
-    font-size: 24px; /* 아이콘 크기 */
+    color: #4CAF50;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%; /* 원형 버튼 */
+    border-radius: 50%;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* 버튼이 줄어들지 않도록 */
+    flex-shrink: 0;
 }
 
 .icon-button:hover {
@@ -60,17 +73,15 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
     max-width: 100%;
     height: auto;
     border-radius: 8px;
-    margin-top: 5px; /* 이미지와 텍스트 간의 간격 */
-    display: block; /* 이미지 하단 여백 제거 */
+    margin-top: 5px;
+    display: block;
 }
-/* --- /이미지 업로드 버튼 스타일 추가 --- */
-
 
 .btn { background-color: #2196F3; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; }
 .btn:hover { background-color: #1e88e5; }
 
 /* 고급 기능 (링크, 파일 다운로드) 스타일 */
-.link-button { /* FastAPI에서 생성된 링크 버튼 스타일 */
+.link-button {
     display: inline-block;
     padding: 5px 10px;
     margin-top: 5px;
@@ -99,30 +110,30 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
     .nav-bar { flex-wrap: wrap; }
     .hamburger-icon { display: block; }
     .nav-links-container.active { display: flex; }
-    .chat-input-container { flex-wrap: wrap; } /* 모바일에서 입력창과 버튼이 줄바꿈되도록 */
-    #chat-input { margin-bottom: 10px; width: 100%; } /* 입력창이 한 줄을 차지하도록 */
-    .icon-button, #send-chat-message { width: calc(50% - 5px); /* 버튼들이 반반씩 차지하도록 */ margin-top: 0; }
-    .icon-button { margin-right: 0; } /* 간격 조정 */
+    .chat-input-container { flex-wrap: wrap; }
+    #chat-input { margin-bottom: 10px; width: 100%; }
+    .icon-button, #send-chat-message { width: calc(50% - 5px); margin-top: 0; }
+    .icon-button { margin-right: 0; }
 }
 
 /* 이전 질문 내역 모달 스타일 */
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
-    z-index: 1001; /* Sit on top */
+    display: none;
+    position: fixed;
+    z-index: 1001;
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
 }
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
+    margin: 15% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 90%; /* Could be more or less, depending on screen size */
+    width: 90%;
     max-width: 600px;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -165,52 +176,63 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
 .history-item:hover {
     background-color: #e9e9e9;
 }
+
 /* 챗봇 플로팅 아이콘 */
 .chatbot-floating-icon {
-    position: fixed; /* 화면에 고정 */
-    bottom: 30px;    /* 하단에서 30px 위로 */
-    right: 30px;     /* 우측에서 30px 왼쪽으로 */
-    width: 60px;     /* 아이콘 너비 */
-    height: 60px;    /* 아이콘 높이 */
-    background-color: #4CAF50; /* 초록손 프로젝트 컬러에 맞춤 */
-    color: white;    /* 아이콘 색상 */
-    border-radius: 50%; /* 원형으로 만들기 */
-    display: flex;   /* 아이콘 정렬을 위해 flexbox 사용 */
-    justify-content: center; /* 가로 중앙 정렬 */
-    align-items: center;     /* 세로 중앙 정렬 */
-    font-size: 32px; /* 아이콘 크기 (Material Icons에 맞게 조정) */
-    cursor: pointer; /* 마우스 오버 시 포인터 변경 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* 그림자 효과 강화 */
-    z-index: 1000;   /* 다른 요소 위에 표시되도록 z-index 높게 설정 */
-    transition: transform 0.3s ease, background-color 0.3s ease; /* 호버 시 애니메이션 */
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    display: flex; /* 초기에는 보여야 하므로 flex 또는 block */
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .chatbot-floating-icon:hover {
-    transform: scale(1.1); /* 호버 시 약간 확대 */
-    background-color: #45a049; /* 호버 시 색상 변경 */
+    transform: scale(1.1);
+    background-color: #45a049;
 }
 
 /* 챗봇 모달 컨테이너 (대화창) */
 .chatbot-modal-container {
-    display: none; /* 기본적으로 숨김 */
-    position: fixed; /* 화면에 고정 */
-    bottom: 100px;   /* 아이콘 위로 배치 */
-    right: 30px;     /* 우측에 정렬 */
-    width: 380px;    /* 대화창 너비 */
-    max-height: 80vh; /* 화면 높이의 80%를 넘지 않도록 (스크롤 필요 시) */
-    background-color: white; /* 배경색 */
-    border: 1px solid #ddd; /* 테두리 */
-    border-radius: 12px; /* 모서리 둥글게 */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* 그림자 효과 강화 */
-    z-index: 999;    /* 아이콘보다 낮지만 다른 콘텐츠보다는 높게 */
-    flex-direction: column; /* 내부 요소 세로 정렬 */
-    overflow: hidden; /* 내용이 넘칠 경우 스크롤 숨김 */
+    display: none; /* ★★★ 기본적으로 숨김 ★★★ */
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    height: 550px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    flex-direction: column;
+    overflow: hidden; /* 내용이 넘칠 경우 스크롤 숨김 (resize와 결합 시 auto로 변경) */
     animation: fadeInScale 0.3s ease-out forwards; /* 나타날 때 애니메이션 */
+
+    /* 크기 조절 가능하도록 설정 */
+    resize: both;
+    overflow: auto; /* 내용이 넘치면 스크롤바 생성 */
+
+    /* 최소 및 최대 크기 설정 (권장) */
+    min-width: 300px;
+    min-height: 400px;
+    max-width: 80vw;
+    max-height: 90vh;
 }
 
 /* 챗봇 모달이 활성화될 때 */
 .chatbot-modal-container.active {
-    display: flex;
+    display: flex; /* ★★★ 활성화될 때 보이도록 설정 ★★★ */
 }
 
 /* 챗봇 헤더 내부 닫기 버튼 */
@@ -225,16 +247,15 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
     background: none;
     border: none;
     color: white;
-    font-size: 28px; /* 닫기 버튼 아이콘 크기 */
+    font-size: 28px;
     cursor: pointer;
-    line-height: 1; /* 텍스트 정렬 보정 */
+    line-height: 1;
     padding: 0;
 }
 
 .close-chatbot-modal:hover {
     color: #f0f0f0;
 }
-
 
 /* 모바일 반응형 추가 (챗봇 모달) */
 @media (max-width: 768px) {
@@ -247,15 +268,15 @@ body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background-color: #f4
     }
 
     .chatbot-modal-container {
-        width: 90%; /* 모바일에서 너비 조절 */
-        right: 5%;   /* 중앙 정렬 */
-        bottom: 80px; /* 아이콘보다 약간 위로 */
-        left: 5%; /* 중앙 정렬 */
-        height: auto; /* 내용에 따라 높이 조절 */
-        max-height: 85vh; /* 화면 높이의 85%까지 */
+        width: 90%;
+        right: 5%;
+        bottom: 80px;
+        left: 5%;
+        height: auto;
+        max-height: 85vh;
+        resize: none;
     }
 }
-
 
 /* 나타나는 애니메이션 키프레임 */
 @keyframes fadeInScale {
