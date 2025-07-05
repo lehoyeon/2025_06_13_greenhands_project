@@ -229,8 +229,9 @@ async def get_gemini_crop_recommendation(environment: str, duration: str, region
     # 프롬프트도 변경된 인수에 맞춰 조정
     prompt_text = (
         f"재배 환경: {environment}, 재배 기간: {duration}, 지역: {region}에 적합한 작물을 추천하세요."
-        " 각 작물에 대해 이름, 화분 크기, 물의 양, 토양 유형, 재배 난이도를 포함합니다."
-        " 한국어로 답변해주세요." # 한국어 답변을 명시적으로 요청
+        " 각 작물에 대해 **id (knowledge_base에 있는 고유 ID),** 이름, 화분 크기, 물의 양, 토양 유형, 재배 난이도를 포함합니다." # id 요청 추가
+        " 한국어로 답변해주세요."
+        " (예시 ID: lettuce, radish, tomato, basil, potato와 같이 knowledge_base에 정의된 정확한 ID를 사용해야 합니다.)" # ID 예시 제공
     )
 
     contents = [
@@ -241,7 +242,7 @@ async def get_gemini_crop_recommendation(environment: str, duration: str, region
             ]
         }
     ]
-    
+
     generation_config = {
         "response_mime_type": "application/json",
         "response_schema": {
@@ -249,13 +250,15 @@ async def get_gemini_crop_recommendation(environment: str, duration: str, region
             "items": {
                 "type": "OBJECT",
                 "properties": {
+                    "id": {"type": "STRING", "description": "작물 고유 ID (knowledge_base의 ID)", "enum": ["lettuce", "radish", "tomato", "basil", "potato"]}, # 여기에 id 추가 및 enum으로 가능한 ID 명시
                     "name": {"type": "STRING", "description": "작물 이름"},
                     "pot_size": {"type": "STRING", "description": "권장 화분 크기"},
                     "water_amount": {"type": "STRING", "description": "권장 물의 양"},
                     "soil_type": {"type": "STRING", "description": "권장 토양 유형"},
                     "difficulty": {"type": "STRING", "description": "재배 난이도 (예: '하', '중', '상')"}
                 },
-                "required": ["name", "pot_size", "water_amount", "soil_type", "difficulty"]
+                # 'id'를 필수 필드에 추가
+                "required": ["id", "name", "pot_size", "water_amount", "soil_type", "difficulty"]
             }
         },
         "temperature": 0.3,
@@ -266,16 +269,23 @@ async def get_gemini_crop_recommendation(environment: str, duration: str, region
 
     try:
         response = await asyncio.to_thread(
-            global_gemini_flash_model.generate_content, 
+            global_gemini_flash_model.generate_content,
             contents,
             generation_config=generation_config
         )
-        
-        output_json_string = response.text 
+
+        output_json_string = response.text
         crops = json.loads(output_json_string)
 
         if not isinstance(crops, list):
             raise TypeError("API 응답이 예상된 JSON 배열 형식이 아닙니다.")
+
+        # 추가: knowledge_base에서 상세 정보 합치기 (필수 아님, 선택 사항)
+        # Gemini가 제공하는 기본 정보 외에 knowledge_base의 상세 정보도 함께 보내고 싶다면
+        # for crop_item in crops:
+        #     kb_data = get_crop_by_id(crop_item.get('id'))
+        #     if kb_data:
+        #         crop_item.update(kb_data) # knowledge_base의 데이터를 현재 작물 데이터에 병합
 
         logging.info(f"Gemini API 응답 (작물 추천): {json.dumps(crops, ensure_ascii=False, indent=2)}")
         return crops

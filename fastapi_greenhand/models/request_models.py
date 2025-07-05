@@ -22,14 +22,23 @@ class CropRecommendationRequest(BaseModel):
 class CropGuideRequest(BaseModel):
     crop_id: str
 
+# ⭐⭐⭐ AddUserCropRequest 수정: is_main_crop 필드 추가 ⭐⭐⭐
 class AddUserCropRequest(BaseModel):
     user_id: int
     crop_id: str # knowledge_base에 정의된 작물의 고유 ID
     alias: Optional[str] = None
+    is_main_crop: bool = False # <-- 이 필드를 추가했습니다. (기본값 False)
 
 class DeleteUserCropRequest(BaseModel):
     user_id: int
     user_crop_id: int
+
+# ⭐⭐⭐ ActivateUserCropRequest 추가 ⭐⭐⭐
+class ActivateUserCropRequest(BaseModel):
+    user_id: int
+    crop_id: str # knowledge_base의 ID
+    alias: Optional[str] = None
+
 
 # 추천 작물 반환용 모델 (Gemini AI 응답 구조와 일치)
 class RecommendedCropResponse(BaseModel):
@@ -54,10 +63,12 @@ class RecommendedCropResponse(BaseModel):
     class Config:
         from_attributes = True # dict에서 Pydantic 모델로 매핑 허용
 
-# 사용자 재배 작물 (DB에서 가져옴) 모델 <-- 이 부분이 누락되었습니다.
+# 사용자 재배 작물 (DB에서 가져옴) 모델
 class UserCropResponse(BaseModel):
     id: int # 데이터베이스 PK
-    user_id: str
+    # user_id는 DB에서 Integer로 저장될 가능성이 높으므로, Pydantic에서도 int로 맞추는 것이 좋습니다.
+    # 만약 DB에 string으로 저장하고 있다면 str로 유지하세요. 일반적으로는 int입니다.
+    user_id: int # <-- 여기서 str에서 int로 변경 (DB 모델에 맞게)
     crop_id_from_kb: str # knowledge_base의 ID
     crop_name: str
     nick_name: Optional[str] = None
@@ -76,6 +87,7 @@ class UserCropResponse(BaseModel):
     crop_status: str
     created_at: str
     updated_at: str
+    is_main_crop: Optional[bool] = None # DB에서 boolean 값을 받아옴
 
     class Config:
         from_attributes = True

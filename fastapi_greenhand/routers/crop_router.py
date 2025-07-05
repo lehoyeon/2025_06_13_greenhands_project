@@ -1,25 +1,35 @@
 # routers/crop_router.py
+
 import logging
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from models.request_models import (
     CropRecommendationRequest,
     CropGuideRequest,
     AddUserCropRequest,
     DeleteUserCropRequest,
+    ActivateUserCropRequest,
     UserCropResponse,
     RecommendedCropResponse
 )
 from services.ai_service import get_gemini_crop_recommendation, get_gemini_crop_guide
-from database import get_db, add_user_crop, get_user_crops, delete_user_crop, delete_all_user_crops, Session
+from database import (
+    get_db,
+    add_user_crop_to_db,
+    activate_user_crop_in_db,
+    get_user_crops,
+    delete_user_crop, # 이 이름은 database.py의 수정 사항과 일치합니다.
+    delete_all_user_crops, # 이 이름은 database.py의 수정 사항과 일치합니다.
+    Session
+)
 from knowledge_base import get_crop_by_id
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 router = APIRouter()
 
 # --- 이 부분이 중요합니다. /crops/ 경로를 추가합니다. ---
 
-@router.post("/crops/recommend-crop", response_model=List[RecommendedCropResponse]) # /crops/ 추가
+@router.post("/crops/recommend-crop", response_model=List[RecommendedCropResponse])
 async def recommend_crop_endpoint(data: CropRecommendationRequest):
     """
     재배 기간, 재배 장소, 지역에 따라 작물을 추천합니다.
@@ -32,15 +42,15 @@ async def recommend_crop_endpoint(data: CropRecommendationRequest):
         )
         if not crops_from_kb:
             raise HTTPException(status_code=404, detail="선택하신 조건에 맞는 작물이 없습니다.")
-        
-        return crops_from_kb 
+
+        return crops_from_kb
     except HTTPException as e:
         raise e
     except Exception as e:
         logging.error(f"Unexpected error in recommend_crop_endpoint: {type(e).__name__}: {e}")
         raise HTTPException(status_code=500, detail=f"작물 추천 중 오류 발생: {e}")
 
-@router.post("/crops/crop-guide") # /crops/ 추가
+@router.post("/crops/crop-guide")
 async def crop_guide_endpoint(data: CropGuideRequest):
     """
     특정 작물 ID에 대한 재배 가이드를 생성합니다.
@@ -58,30 +68,73 @@ async def crop_guide_endpoint(data: CropGuideRequest):
 
 # === 사용자 작물(재배 리스트) 관련 엔드포인트 ===
 
-@router.post("/crops/user-crops/add") # /crops/ 추가
+@router.post("/crops/user-crops/add")
 async def add_user_crop_endpoint(
-    data: AddUserCropRequest, 
+    data: AddUserCropRequest,
     db: Session = Depends(get_db)
 ):
+    """
+    사용자의 재배 리스트에 작물을 추가합니다. (기본적으로 is_main_crop=False)
+    """
     try:
-        crop_data_from_kb = get_crop_by_id(data.crop_id) 
-        if not crop_data_from_kb:
-            raise HTTPException(status_code=404, detail=f"작물 ID '{data.crop_id}'에 대한 정보를 찾을 수 없습니다.")
-        
-        added_user_crop = add_user_crop(db, data.user_id, crop_data_from_kb, data.alias)
+        added_user_crop = add_user_crop_to_db(
+            db,
+            data.user_id,
+            data.crop_id,
+            data.alias,
+            is_main=data.is_main_crop
+        )
+        if not added_user_crop:
+            raise HTTPException(status_code=404, detail=f"작물 ID '{data.crop_id}'에 대한 정보를 찾을 수 없거나 추가에 실패했습니다.")
+
         return {"message": "작물이 재배 리스트에 성공적으로 추가되었습니다.", "user_crop_id": added_user_crop.id}
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logging.error(f"Failed to add user crop: {e}")
         raise HTTPException(status_code=500, detail=f"작물 추가 중 오류 발생: {e}")
 
-@router.get("/crops/user-crops/{user_id}", response_model=List[UserCropResponse]) # /crops/ 추가
-async def get_user_crops_endpoint(
-    user_id: int, 
+@router.post("/crops/user-crops/activate")
+async def activate_user_crop_endpoint(
+    data: ActivateUserCropRequest,
     db: Session = Depends(get_db)
 ):
+    """
+    사용자의 관심 작물을 나의 농장(메인 재배 작물)으로 활성화합니다.
+    (기존 is_main_crop=False인 동일 작물은 삭제 후 is_main_crop=True로 추가)
+    """
     try:
-        crops_from_db = get_user_crops(db, user_id)
-        
+        activated_crop = activate_user_crop_in_db(
+            db,
+            data.user_id,
+            data.crop_id,
+            data.alias
+        )
+        if not activated_crop:
+            raise HTTPException(status_code=500, detail="작물을 나의 농장에 등록하는 데 실패했습니다.")
+
+        return {"message": f"작물 '{activated_crop.nick_name}'이(가) 나의 농장에 성공적으로 등록되었습니다.", "user_crop_id": activated_crop.id}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logging.error(f"Failed to activate user crop: {e}")
+        raise HTTPException(status_code=500, detail=f"작물 활성화 중 오류 발생: {e}")
+
+
+# ⭐⭐⭐ 여기 변경됩니다: user_id 경로 파라미터를 다시 추가합니다. ⭐⭐⭐
+@router.get("/crops/user-crops/{user_id}", response_model=List[UserCropResponse])
+async def get_user_crops_endpoint(
+    user_id: int, # ⭐⭐⭐ user_id를 다시 받도록 설정 ⭐⭐⭐
+    is_main_crop: Optional[bool] = Query(None, description="메인 재배 작물 여부로 필터링"),
+    db: Session = Depends(get_db)
+):
+    """
+    특정 사용자의 재배 작물 리스트를 조회합니다. (is_main_crop 여부로 필터링 가능)
+    """
+    try:
+        # ⭐⭐⭐ get_user_crops 호출 시 user_id 전달 ⭐⭐⭐
+        crops_from_db = get_user_crops(db, user_id=user_id, is_main_crop=is_main_crop)
+
         transformed_crops = []
         for db_crop in crops_from_db:
             parsed_care_instruction = {}
@@ -89,15 +142,15 @@ async def get_user_crops_endpoint(
                 try:
                     parsed_care_instruction = json.loads(db_crop.care_instruction)
                 except json.JSONDecodeError:
-                    parsed_care_instruction = {"content": db_crop.care_instruction} 
-            
+                    parsed_care_instruction = {"content": db_crop.care_instruction}
+
             transformed_crops.append(UserCropResponse(
                 id=db_crop.id,
                 user_id=db_crop.user_id,
                 crop_id_from_kb=db_crop.crop_id_from_kb,
                 crop_name=db_crop.crop_name,
                 nick_name=db_crop.nick_name,
-                
+
                 environment=db_crop.environment,
                 difficulty=db_crop.difficulty,
                 pot_size=db_crop.pot_size,
@@ -112,18 +165,23 @@ async def get_user_crops_endpoint(
                 crop_status=db_crop.crop_status,
                 created_at=db_crop.created_at.isoformat(),
                 updated_at=db_crop.updated_at.isoformat(),
+                is_main_crop=db_crop.is_main_crop
             ))
         return transformed_crops
     except Exception as e:
         logging.error(f"Failed to retrieve user crops: {e}")
-        raise HTTPException(status_code=500, detail=f"사용자 작물 조회 중 오류 발생: {e}")
+        raise HTTPException(status_code=500, detail=f"작물 조회 중 오류 발생: {e}")
 
-@router.delete("/crops/user-crops/{user_id}/{user_crop_id}") # /crops/ 추가
+
+@router.delete("/crops/user-crops/{user_id}/{user_crop_id}")
 async def delete_user_crop_endpoint(
-    user_id: int, 
-    user_crop_id: int, 
+    user_id: int,
+    user_crop_id: int,
     db: Session = Depends(get_db)
 ):
+    """
+    사용자의 재배 리스트에서 특정 작물을 삭제합니다.
+    """
     try:
         success = delete_user_crop(db, user_id, user_crop_id)
         if not success:
@@ -135,11 +193,14 @@ async def delete_user_crop_endpoint(
         logging.error(f"Failed to delete user crop: {e}")
         raise HTTPException(status_code=500, detail=f"작물 삭제 중 오류 발생: {e}")
 
-@router.delete("/crops/user-crops/all/{user_id}") # /crops/ 추가
+@router.delete("/crops/user-crops/all/{user_id}")
 async def delete_all_user_crops_endpoint(
-    user_id: int, 
+    user_id: int,
     db: Session = Depends(get_db)
 ):
+    """
+    사용자의 모든 재배 작물을 삭제합니다.
+    """
     try:
         success = delete_all_user_crops(db, user_id)
         if not success:
