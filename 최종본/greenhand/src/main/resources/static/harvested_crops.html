@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 수확한 작물 보관함</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/harvested_crops.css"> <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/chatbot.css">
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="logout-form-top-right">
+        <form action="/logout" method="post">
+            <button type="submit" class="logout-button">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="main.html" class="active">내 농장</a>
+            <a href="crop.html">작물 추가</a>
+            <a href="harvested_crops.html">내가 기른 작물</a> <a href="img.html">작물 진단</a>
+            <a href="chatbot.html" id="chatbotNavLink">챗봇 상담</a>
+        </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="harvested-crops-panel">
+            <div class="card">
+                <div class="card-header">🧺 내가 기른 작물 🌾</div>
+                <div class="card-content">
+                    <p style="text-align: center; font-size: 1.1em; color: #000; margin-bottom: 20px;">
+                        <span id="current-username-display-harvested">불러오는 중...</span>님의 수확 작물</p>
+
+                    <div class="harvested-crop-list-container">
+                        <ul class="harvested-crop-list" id="my-harvested-crops-list">
+                            <p style="text-align: center; color: #000;">수확된 작물 정보는 현재 표시되지 않습니다.</p>
+                        </ul>
+                    </div>
+
+                    <div class="harvested-crop-details" id="selected-harvested-crop-details" style="display:none;">
+                        <h3>선택된 수확 작물 상세 정보</h3>
+                        <p><strong>작물명:</strong> <span id="harvest-detail-name">선택 없음</span></p>
+                        <p><strong>수확일:</strong> <span id="harvest-detail-harvested-at"></span></p>
+                        <p><strong>총 재배 기간:</strong> <span id="harvest-detail-expected-days"></span></p>
+                        <p><strong>재배 환경:</strong> <span id="harvest-detail-environment">경기도 (실외)</span></p>
+                        <p><strong>난이도:</strong> <span id="harvest-detail-difficulty"></span></p>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="chatbot-floating-icon" id="chatbotFloatingIcon">
+        <i class="material-icons">chat</i>
+    </div>
+    <div class="chatbot-modal-container" id="chatbotModalContainer">
+        <div class="chatbot-modal-content">
+            <section id="chatbot-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <span id="chatbot-header-title">💬 AI 챗봇 농업 상담 💬</span>
+                        <button class="close-chatbot-modal" id="closeChatbotModal">&times;</button>
+                    </div>
+                    <div class="card-content">
+                        <div id="chat-history">
+                            <div class="chat-message bot">
+                                <div class="message-info">
+                                    <span class="message-sender">초록손</span> <span class="message-time">[<span class="current-time"></span>]</span>
+                                </div>
+                                <div class="message-bubble" id="initial-chatbot-greeting">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" id="chat-input" placeholder="메시지 입력...">
+                            <button id="upload-image-button" class="icon-button">
+                                <i class="material-icons">add_photo_alternate</i>
+                            </button>
+                            <input type="file" id="image-upload-input" name="imageFile" accept="image/*" style="display: none;">
+                            <button id="send-chat-message">전송</button>
+                        </div>
+                        <button class="btn" style="width: 100%; margin-top: 10px;" id="show-history-button">이전 질문 내역 확인</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeHistoryModal()">&times;</span>
+            <h2 style="font-size: 20px; margin-bottom: 15px;">이전 질문 내역</h2>
+            <div id="history-list">
+                <p style="text-align: center; color: #888;">이전 질문을 불러오는 중...</p>
+            </div>
+            <button class="btn" style="margin-top: 15px;" onclick="closeHistoryModal()">닫기</button>
+        </div>
+    </div>
+
+    <div id="guide-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3 id="modal-guide-title">재배 가이드</h3>
+            <div id="guide-content"></div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/chatbot/chatbot_core.js"></script>
+    <script src="js/chatbot/floating_chatbot.js"></script>
+    <script src="js/harvested_crops.js"></script>
+</div>
+</body>
+</html>

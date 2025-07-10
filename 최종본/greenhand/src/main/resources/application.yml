@@ -1,0 +1,60 @@
+spring:
+  # OAuth2, DataSource, JPA 설정은 변경 없음. 그대로 유지
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ccc93a4ef4efcbf5df114841f4c5b32b   # REST API 키
+            client-secret: ""  # 카카오는 보통 비워둠
+            client-authentication-method: none   # 빈 시크릿이면 none 으로 설정
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"  # 반드시 이 패턴
+            scope:
+              - profile_nickname
+              - profile_image
+            client-name: Kakao
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  datasource:
+    url: jdbc:mariadb://192.168.0.30:3306/greenhand
+    username: root
+    password: user1234
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+
+  # === 추가/수정될 Thymeleaf 설정 부분 ===
+  thymeleaf:
+    prefix: classpath:/chatbot/ # <-- 이제 템플릿 파일을 src/main/resources/chatbot/ 에서 찾습니다.
+    suffix: .html
+    cache: false # 개발 중에는 캐시 비활성화 (변경사항 즉시 반영)
+    mode: HTML # HTML5 모드 (기본값)
+  # ==================================
+
+server:
+  tomcat:
+    uri-encoding: UTF-8
+logging:
+  level:
+    org.springframework.security: DEBUG # Spring Security 로깅 레벨을 DEBUG로 설정
+    org.springframework.web: DEBUG
+
+# === 새로 추가될 파일 업로드 디렉토리 설정 ===
+file:
+  upload-dir: ./uploads # 프로젝트 루트 디렉토리에 'uploads' 폴더를 생성하고 거기에 파일을 저장합니다.
+    # Windows의 경우 C:/uploads, Linux/macOS의 경우 /home/user/uploads 등 절대 경로도 가능합니다.
+  # 하지만 상대 경로 `./uploads`는 프로젝트 실행 위치에 따라 달라질 수 있으니 주의하세요.
+# ==========================================

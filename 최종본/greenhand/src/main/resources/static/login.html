@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인</title>
+    <link rel="stylesheet" href="/css/login-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="welcome-banner">
+    <h2>🌿 초록손에 오신걸 환영합니다! 🌿</h2>
+</div>
+
+<div class="page-wrapper">
+    <div class="image-panel">
+    </div>
+
+    <div class="form-panel">
+        <div class="login-container">
+            <h1>로그인</h1>
+            <form action="/do-login" method="post">
+                <div class="form-group">
+                    <label for="username">사용자 이름</label>
+                    <input type="text" id="username" name="username" placeholder="ID를 입력하세요" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+                </div>
+                <button type="submit" class="btn-login">로그인</button>
+            </form>
+
+            <p class="separator">또는</p>
+
+            <button class="btn-social kakao" onclick="window.location.href='/oauth2/authorization/kakao'">
+                Kakao 로그인
+            </button>
+
+            <a href="/signup.html" class="btn-register">회원가입</a>
+            <button id="openFindAccountModal" class="btn-find-main">아이디/비밀번호 찾기</button>
+        </div>
+    </div>
+</div>
+
+<div class="error-message" id="login-error-message" style="display: none;">
+    아이디 또는 비밀번호가 잘못되었습니다.
+</div>
+<div class="success-message" id="logout-success-message" style="display: none;">
+    로그아웃 되었습니다.
+</div>
+<div class="success-message" id="signup-success-message" style="display: none;">
+    회원가입이 완료되었습니다. 로그인해주세요.
+</div>
+
+<div id="findAccountModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            아이디/비밀번호 찾기
+            <button class="close-modal-x-button" onclick="closeFindAccountModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="section-toggle">
+                <button id="findIdTab" class="active">아이디 찾기</button>
+                <button id="resetPwTab">비밀번호 찾기</button>
+            </div>
+
+            <div id="findIdSection" class="find-section active">
+                <form id="findIdForm">
+                    <div class="form-group">
+                        <label for="findIdEmail">등록된 이메일</label>
+                        <input type="email" id="findIdEmail" name="email" placeholder="가입 시 등록한 이메일 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="findIdPhoneNumber">등록된 전화번호</label>
+                        <input type="text" id="findIdPhoneNumber" name="phoneNumber" placeholder="등록된 전화번호 입력 (하이픈 없이)" required>
+                    </div>
+                    <button type="submit" class="btn-find">아이디 찾기</button>
+                    <div id="findIdResult" class="result-message" style="display: none;"></div>
+                </form>
+            </div>
+
+            <div id="resetPwSection" class="find-section">
+                <form id="resetPwForm">
+                    <div class="form-group">
+                        <label for="resetPwUsername">아이디</label>
+                        <input type="text" id="resetPwUsername" name="username" placeholder="아이디 입력" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="resetPwPhoneNumber">등록된 전화번호</label>
+                        <input type="text" id="resetPwPhoneNumber" name="phoneNumber" placeholder="등록된 전화번호 입력 (하이픈 없이)" required>
+                    </div>
+                    <button type="submit" class="btn-find">비밀번호 재설정</button>
+                    <div id="resetPwResult" class="result-message" style="display: none;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/login.js"></script>
+</body>
+</html>

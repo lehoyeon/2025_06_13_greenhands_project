@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>초록손 - 작물 진단</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/img.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+<div class="app-container">
+    <div class="header">🌿 초록손 프로젝트 스토리보드 🌿</div>
+
+    <div class="logout-form-top-right">
+        <form action="/logout" method="post">
+            <button type="submit" class="logout-button">로그아웃</button>
+        </form>
+    </div>
+
+    <div class="nav-bar">
+        <button class="hamburger-icon" onclick="toggleNavMenu()">
+            <i class="material-icons">menu</i>
+        </button>
+        <div class="nav-links-container" id="navLinksContainer">
+            <a href="main.html" class="active">내 농장</a>
+            <a href="crop.html">작물 추가</a>
+            <a href="harvested_crops.html">내가 기른 작물</a> <a href="img.html">작물 진단</a>
+            <a href="chatbot.html" id="chatbotNavLink">챗봇 상담</a>
+        </div>
+    </div>
+
+    <div class="main-content-panel">
+        <section id="img-panel">
+            <div class="card">
+                <div class="card-header">📷 AI 작물 진단 🌾</div>
+                <div class="card-content">
+                    <p style="text-align: center; color: #555;">작물 잎 이미지를 업로드하고 진단하세요. (JPEG, PNG 권장)</p>
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="input-group" style="margin-bottom: 20px;">
+                            <label for="imageUpload" style="display: none;">이미지 선택</label>
+                            <input type="file" id="imageUpload" name="file" accept="image/jpeg, image/png" required>
+                        </div>
+                        <div class="placeholder-box image-placeholder">
+                            <img id="imagePreview" class="image-preview" src="#" alt="이미지 미리보기">
+                            <span id="placeholderText">업로드된 이미지 미리보기 공간</span>
+                        </div>
+
+                        <div class="prompt-input-group" style="margin-top: 20px;">
+                            <label for="prompt-text" style="display: block; margin-bottom: 5px; color: #333; font-weight: bold;">AI에게 질문:</label>
+                            <textarea id="prompt-text" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;">이 식물 사진을 보고, 식물에 질병이 있는지 여부와 건강 상태를 알려주세요. 만약 질병이 있다면 어떤 질병으로 추정되며, 어떻게 관리해야 할지 간략하게 설명해주세요.</textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-diagnose" style="margin-top: 20px;">진단 시작</button>
+                    </form>
+
+                    <div class="diagnosis-result-section" style="display:none;">
+                        <h2 id="diagnosisResultSummary" style="text-align: center; color: #4CAF50; margin-bottom: 15px;">진단 결과</h2>
+                        <img id="diagnosedImageDisplay" src="#" alt="진단된 이미지" style="max-width: 100%; height: auto; margin: 15px auto; border-radius: 5px; display: none;">
+
+                        <div id="diagnosisDetailsContainer">
+                            <div id="featureSection" class="diagnosis-detail-section">
+                                <p><strong>특징:</strong> <span id="featureContent"></span></p>
+                            </div>
+                            <div id="causeSection" class="diagnosis-detail-section">
+                                <p><strong>원인:</strong> <span id="causeContent"></span></p>
+                            </div>
+                            <div id="solutionSection" class="diagnosis-detail-section">
+                                <p><strong>해결 방안:</strong> <span id="solutionContent"></span></p>
+                            </div>
+                            <p id="detailsFallback" style="display:none;">상세 정보 없음</p> </div>
+
+                        <p style="margin-top: 15px;"><strong>심각도:</strong> <span id="diagnosisSeverity">알 수 없음</span></p>
+                        <p><strong>작물명:</strong> <span id="diagnosisPlantName">알 수 없음</span></p>
+
+                        <p class="error-message-display" id="diagnosisError" style="display:none;"></p>
+
+                    </div>
+
+                    <button class="btn btn-secondary" id="showDiagnosisHistoryButton" style="margin-top: 20px; width: 100%;">
+                        이전 진단 내역 확인
+                    </button>
+                    <button class="btn btn-primary" onclick="location.href='main.html'" style="margin-top: 10px; width: 100%;">
+                        <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">home</i> 내 농장으로 돌아가기
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="chatbot-floating-icon" id="chatbotFloatingIcon">
+    <i class="material-icons">chat</i>
+</div>
+
+<div class="chatbot-modal-container" id="chatbotModalContainer">
+    <div class="chatbot-modal-content">
+        <section id="chatbot-panel">
+            <div class="card">
+                <div class="card-header">
+                    <span id="chatbot-header-title">💬 AI 챗봇 농업 상담 💬</span>
+                    <button class="close-chatbot-modal" id="closeChatbotModal">&times;</button>
+                </div>
+                <div class="card-content">
+                    <div id="chat-history">
+                        <div class="chat-message bot">
+                            <div class="message-info">
+                                <span class="message-sender">초록손</span> <span class="message-time">[<span class="current-time"></span>]</span>
+                            </div>
+                            <div class="message-bubble" id="initial-chatbot-greeting">안녕하세요! 농업에 대해 궁금한 점을 물어보세요.</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chat-input" placeholder="메시지 입력...">
+                        <button id="upload-image-button" class="icon-button">
+                            <i class="material-icons">add_photo_alternate</i>
+                        </button>
+                        <input type="file" id="image-upload-input" name="imageFile" accept="image/*" style="display: none;">
+                        <button id="send-chat-message">전송</button>
+                    </div>
+                    <button class="btn" style="width: 100%; margin-top: 10px;" id="show-history-button">이전 질문 내역 확인</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div id="diagnosisHistoryModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeDiagnosisHistoryModal()">&times;</span>
+        <h2 style="font-size: 20px; margin-bottom: 15px;">이전 진단 내역</h2>
+        <div id="diagnosisHistoryList" style="max-height: 400px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 5px; background-color: #fcfcfc;">
+            <p style="text-align: center; color: #888;">이전 진단 내역을 불러오는 중...</p>
+        </div>
+        <button class="btn" style="margin-top: 15px;" onclick="closeDiagnosisHistoryModal()">닫기</button>
+    </div>
+</div>
+
+
+<script src="js/main.js"></script>
+<script src="js/chatbot/chatbot_core.js"></script>
+<script src="js/chatbot/floating_chatbot.js"></script>
+<script src="js/img.js"></script>
+</body>
+</html>
