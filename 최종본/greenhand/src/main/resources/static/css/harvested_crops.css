@@ -1,0 +1,89 @@
+/* css/harvested_crops.css */
+
+.harvested-crop-list-container {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.harvested-crop-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.harvested-crop-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.harvested-crop-item:hover {
+    background-color: #eef2ee;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.harvested-crop-item .crop-info-text {
+    flex-grow: 1;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.05em;
+}
+
+.harvested-crop-item .harvest-date {
+    font-size: 0.9em;
+    color: #555;
+    margin-left: 15px;
+    white-space: nowrap; /* 줄바꿈 방지 */
+}
+
+.harvested-crop-details {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-top: 30px;
+}
+
+.harvested-crop-details h3 {
+    margin-top: 0;
+    color: #8BC34A; /* 연한 녹색 */
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.harvested-crop-details p {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.harvested-crop-details strong {
+    color: #4CAF50;
+}
+
+/* 모바일 반응형 */
+@media (max-width: 768px) {
+    .harvested-crop-item {
+        flex-wrap: wrap;
+        padding: 10px;
+    }
+    .harvested-crop-item .crop-info-text {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .harvested-crop-item .harvest-date {
+        margin-left: 0;
+        width: 100%;
+        text-align: right;
+    }
+    .harvested-crop-details {
+        padding: 15px;
+    }
+}

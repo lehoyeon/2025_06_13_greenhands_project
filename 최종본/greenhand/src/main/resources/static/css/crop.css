@@ -1,0 +1,536 @@
+/* 기본 설정 및 전체 레이아웃 (main.css와 통일) */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6; /* main.css의 배경색 */
+    color: #333;
+    line-height: 1.6;
+    display: flex; /* main.css의 flexbox 레이아웃 */
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px; /* main.css의 border-radius */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* main.css의 box-shadow */
+    overflow: hidden;
+    display: flex; /* main.css의 flexbox 레이아웃 */
+    flex-direction: column;
+    width: 100%; /* 너비 100% 추가 */
+}
+
+/* 헤더 (main.css와 통일) */
+.header {
+    background-color: #4CAF50; /* main.css의 헤더색 */
+    color: white;
+    padding: 15px 20px; /* main.css의 패딩 */
+    text-align: center;
+    font-size: 24px; /* main.css의 폰트 크기 */
+    font-weight: 700;
+    position: relative; /* 로그아웃 버튼 위치 조정을 위해 */
+}
+
+/* 로그아웃 버튼 (main.css와 통일) */
+.logout-form-top-right {
+    position: absolute; /* 절대 위치 */
+    top: 20px; /* 상단에서 20px 떨어짐 */
+    right: 20px; /* 우측에서 20px 떨어짐 */
+    z-index: 10; /* 다른 요소 위에 표시 */
+}
+
+.logout-button {
+    background-color: #f44336; /* 빨간색 계열 */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}
+
+/* 내비게이션 링크 컨테이너 (main.css와 통일) */
+/* .nav-bar 대신 .nav-links-container에 스타일 적용 */
+.nav-links-container {
+    background-color: #f2f2f2; /* main.css의 nav-bar 배경색 */
+    padding: 10px 20px; /* main.css의 nav-bar 패딩 */
+    display: flex;
+    justify-content: space-between; /* 양쪽 정렬 */
+    align-items: center;
+    border-bottom: 1px solid #ddd; /* main.css의 border-bottom */
+    gap: 10px; /* 링크 간 간격 */
+}
+
+.nav-links-container a { /* .nav-bar a 대신 .nav-links-container a */
+    color: #333;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    font-weight: 500;
+}
+
+.nav-links-container a:hover {
+    background-color: #e2e2e2;
+}
+
+.nav-links-container a.active {
+    color: black;
+}
+
+/* 메인 콘텐츠 패널 (main.css와 통일) */
+.main-content-panel {
+    padding: 20px;
+    background-color: #f8f8f8;
+    flex-grow: 1;
+}
+
+/* 카드 그룹 (섹션별 공통 스타일, main.css와 통일) */
+.card-group { /* .card로 변경 */
+    background-color: white;
+    border-radius: 8px; /* main.css의 border-radius */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* main.css의 box-shadow */
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #8BC34A; /* main.css의 카드 헤더 배경색 */
+    color: white;
+    padding: 15px 20px;
+    font-size: 18px; /* main.css의 폰트 크기 */
+    font-weight: 700;
+}
+
+.card-content {
+    padding: 20px; /* main.css와 통일 */
+}
+
+/* 추천 섹션 레이아웃 (crop.css 고유) */
+.recommendation-section .horizontal-layout {
+    display: flex;
+    gap: 25px;
+}
+
+.recommended-crops-box {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+.crop-details-box {
+    flex: 1;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 옵션 영역 (드롭다운, 버튼) */
+.options-area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f2f7f1; /* 기존 crop.css 유지 */
+    border-radius: 8px;
+    border: 1px solid #e0e6e0;
+}
+
+.options-area label {
+    font-weight: 600;
+    color: #444;
+}
+
+.options-area select,
+.options-area input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    min-width: 120px;
+    flex-grow: 1;
+}
+
+/* 버튼 공통 스타일 (main.css와 통일) */
+.btn {
+    background-color: #4CAF50; /* main.css의 버튼색 */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.0em; /* main.css의 폰트 크기 */
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.1s; /* main.css와 통일 */
+    white-space: nowrap;
+}
+
+.btn:hover {
+    background-color: #388E3C; /* main.css의 hover 색상 */
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: #f0f0f0; /* main.css의 btn-secondary 색상 */
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-small {
+    padding: 5px 10px;
+    font-size: 0.85em;
+}
+
+/* 추천 작물 그리드 */
+.recommended-crops-grid {
+    display: flex; /* flex로 변경 */
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #fefefe;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    min-height: 200px;
+}
+
+.recommended-crop-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    width: 180px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.recommended-crop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: #4CAF50; /* 메인 초록색으로 변경 */
+}
+
+.crop-thumbnail {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 12px;
+    border: 2px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.recommended-crop-item h3 {
+    margin: 5px 0 0;
+    font-size: 1.2em;
+    color: #333;
+    font-weight: 700;
+}
+
+.recommended-crop-item p {
+    font-size: 0.9em;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* 작물 상세 정보 박스 */
+.crop-details-box h4 {
+    margin-top: 0;
+    color: #444;
+    font-size: 1.4em;
+    border-bottom: 1px dashed #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.crop-details-box p {
+    margin-bottom: 10px;
+    font-size: 1em;
+    color: #555;
+}
+
+.crop-details-box strong {
+    color: #333;
+    font-weight: 600;
+}
+
+#detail-preparations {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding: 0;
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+#detail-preparations li {
+    margin-bottom: 5px;
+}
+
+/* 난이도 진행 바 */
+.progress-bar-container {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 10px;
+    margin-top: 5px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+    background-color: #4CAF50; /* main.css와 통일 */
+}
+
+/* 재배 리스트 */
+#cultivation-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cultivation-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    font-size: 1em;
+    color: #333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cultivation-list-item span {
+    flex-grow: 1;
+    margin-right: 15px;
+    font-weight: 600;
+}
+
+.cultivation-list-item .item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.crop-thumbnail-small {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+}
+
+/* 모달 공통 스타일 (main.css와 통일) */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4); /* main.css의 opacity 변경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 20px; /* main.css와 통일 */
+    border: 1px solid #888;
+    border-radius: 10px; /* main.css와 통일 */
+    width: 80%; /* main.css와 통일 */
+    max-width: 600px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19); /* main.css와 통일 */
+    position: relative;
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    color: #4CAF50; /* main.css와 통일 */
+    font-size: 22px; /* main.css와 통일 */
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.modal-content #guide-content {
+    text-align: left;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 10px;
+}
+
+.modal-content #guide-content ul {
+    list-style: disc; /* disc로 변경 */
+    margin-left: 20px;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.modal-content #guide-content ul li {
+    background-color: #f5f5f5;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 1em;
+    color: #444;
+    border-left: 4px solid #4CAF50; /* main.css와 통일 */
+}
+.modal-content #guide-content p {
+    font-size: 1em;
+    color: #444;
+    line-height: 1.6;
+}
+
+.modal .close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px; /* main.css와 통일 */
+    right: 15px; /* main.css와 통일 */
+    font-size: 28px; /* main.css와 통일 */
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal .close-btn:hover,
+.modal .close-btn:focus {
+    color: black;
+}
+
+#crop-alias-input {
+    width: calc(100% - 24px); /* 패딩 고려 */
+    padding: 12px;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1.1em;
+}
+
+#confirm-alias-btn {
+    margin-top: 10px;
+    width: 100%;
+}
+
+/* 버튼 그룹 */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 반응형 디자인 (main.css와 통일) */
+@media (max-width: 768px) {
+    .app-container {
+        margin: 10px auto;
+        border-radius: 0;
+    }
+    .header {
+        font-size: 1.5em;
+        padding: 15px 20px;
+    }
+    .nav-links-container { /* nav-bar 대신 nav-links-container */
+        flex-direction: column;
+        width: 100%;
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        background-color: #f2f2f2;
+        box-shadow: 0 4px 5px rgba(0,0,0,0.1);
+        z-index: 9;
+        padding: 10px 0;
+    }
+    .nav-links-container.active {
+        display: flex;
+    }
+    .nav-links-container a { /* nav-bar a 대신 nav-links-container a */
+        width: 100%;
+        padding: 12px 20px;
+        border-bottom: 1px solid #eee;
+    }
+    .nav-links-container a:last-child {
+        border-bottom: none;
+    }
+
+    .logout-form-top-right {
+        position: static;
+        width: 100%;
+        text-align: right;
+        padding-right: 15px;
+        margin-top: 10px;
+    }
+
+    .main-content-panel {
+        padding: 15px 20px;
+    }
+    .recommendation-section .horizontal-layout {
+        flex-direction: column;
+    }
+    .recommended-crops-box,
+    .crop-details-box {
+        flex: none;
+        width: 100%;
+    }
+    .options-area {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .options-area select,
+    .options-area input,
+    .options-area .btn {
+        width: 100%;
+        min-width: unset;
+    }
+    .recommended-crops-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        justify-content: space-around;
+    }
+    .recommended-crop-item {
+        width: 140px;
+    }
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+}
